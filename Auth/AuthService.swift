@@ -5,49 +5,59 @@ struct AuthPayload: Codable {
     let user: User
 }
 
+struct AuthCodePayload: Codable {
+    let sent: Bool
+    let debugCode: String?
+}
+
 struct AuthService {
     var client: GraphQLClient
 
-    func register(email: String, password: String, displayName: String, role: String) async throws -> AuthPayload {
+    func requestAuthCode(email: String, role: String, displayName: String) async throws -> AuthCodePayload {
         struct Data: Decodable {
-            let register: AuthPayload
+            let requestAuthCode: AuthCodePayload
+        }
+        var variables: [String: Any] = [
+            "email": email,
+            "role": role
+        ]
+        let name = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty {
+            variables["displayName"] = NSNull()
+        } else {
+            variables["displayName"] = name
         }
         let data: Data = try await client.execute(
             query: """
-            mutation($email: String!, $password: String!, $displayName: String!, $role: Role!) {
-              register(email: $email, password: $password, displayName: $displayName, role: $role) {
-                token
-                user { id email displayName role }
+            mutation($email: String!, $role: Role!, $displayName: String) {
+              requestAuthCode(email: $email, role: $role, displayName: $displayName) {
+                sent
+                debugCode
               }
             }
             """,
-            variables: [
-                "email": email,
-                "password": password,
-                "displayName": displayName,
-                "role": role
-            ],
+            variables: variables,
             as: Data.self
         )
-        return data.register
+        return data.requestAuthCode
     }
 
-    func login(email: String, password: String) async throws -> AuthPayload {
+    func verifyAuthCode(email: String, code: String) async throws -> AuthPayload {
         struct Data: Decodable {
-            let login: AuthPayload
+            let verifyAuthCode: AuthPayload
         }
         let data: Data = try await client.execute(
             query: """
-            mutation($email: String!, $password: String!) {
-              login(email: $email, password: $password) {
+            mutation($email: String!, $code: String!) {
+              verifyAuthCode(email: $email, code: $code) {
                 token
                 user { id email displayName role }
               }
             }
             """,
-            variables: ["email": email, "password": password],
+            variables: ["email": email, "code": code],
             as: Data.self
         )
-        return data.login
+        return data.verifyAuthCode
     }
 }

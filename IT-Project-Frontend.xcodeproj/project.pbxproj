@@ -22,8 +22,7 @@
 		B8A1C011C0A14B0E8E2C1D02 /* BrandMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */; };
 		05CCC3720E4548F693651C97 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DEF77F62A34AD5A70662A1 /* SessionStore.swift */; };
 		1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D61D87135346E496A97DBE /* RoleSelectView.swift */; };
-		92BAFED9CF8C43C79C45C836 /* PatientAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */; };
-		A351034E477E497F81DAB227 /* CaregiverGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE6C1A53DA7430CBA807C48 /* CaregiverGateView.swift */; };
+		92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */; };
 		8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */; };
 		A1F0B011C0A14B0E8E2C1B02 /* BricolageGrotesque-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */; };
 		A1F0B011C0A14B0E8E2C1B03 /* BricolageGrotesque-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */; };
@@ -50,8 +49,7 @@
 		B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandMark.swift; sourceTree = "<group>"; };
 		77DEF77F62A34AD5A70662A1 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		D7D61D87135346E496A97DBE /* RoleSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleSelectView.swift; sourceTree = "<group>"; };
-		7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatientAuthView.swift; sourceTree = "<group>"; };
-		5FE6C1A53DA7430CBA807C48 /* CaregiverGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverGateView.swift; sourceTree = "<group>"; };
+		7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAuthView.swift; sourceTree = "<group>"; };
 		2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePlaceholderView.swift; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-ExtraBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-SemiBold.otf"; sourceTree = "<group>"; };
@@ -136,8 +134,7 @@
 				3802A28D030949068A973A22 /* AuthService.swift */,
 				77DEF77F62A34AD5A70662A1 /* SessionStore.swift */,
 				D7D61D87135346E496A97DBE /* RoleSelectView.swift */,
-				7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */,
-				5FE6C1A53DA7430CBA807C48 /* CaregiverGateView.swift */,
+				7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -291,8 +288,7 @@
 				B8A1C011C0A14B0E8E2C1D02 /* BrandMark.swift in Sources */,
 				05CCC3720E4548F693651C97 /* SessionStore.swift in Sources */,
 				1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */,
-				92BAFED9CF8C43C79C45C836 /* PatientAuthView.swift in Sources */,
-				A351034E477E497F81DAB227 /* CaregiverGateView.swift in Sources */,
+				92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */,
 				8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

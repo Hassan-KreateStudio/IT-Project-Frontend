@@ -24,7 +24,7 @@ struct RoleSelectView: View {
 
                     VStack(spacing: 12) {
                         NavigationLink {
-                            PatientAuthView()
+                            EmailAuthView(role: "PATIENT")
                         } label: {
                             roleCard(
                                 title: "I'm a patient",
@@ -34,7 +34,7 @@ struct RoleSelectView: View {
                         }
 
                         NavigationLink {
-                            CaregiverGateView()
+                            EmailAuthView(role: "CAREGIVER")
                         } label: {
                             roleCard(
                                 title: "I'm a caregiver",

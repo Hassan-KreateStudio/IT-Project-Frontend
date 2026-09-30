@@ -44,11 +44,14 @@ struct GraphQLError: Decodable, LocalizedError {
 
     var errorDescription: String? {
         switch extensions?.code ?? message {
-        case "duplicate_email": return "That email is already registered."
-        case "unauthorized": return "Email or password is wrong."
-        case "invalid_password": return "Password must be at least 8 characters."
         case "invalid_email": return "Enter a valid email."
-        case "invalid_display_name": return "Enter a name."
+        case "invalid_display_name": return "First time here — add your name."
+        case "invalid_code": return "That code isn’t right."
+        case "too_many_attempts": return "Too many tries. Request a new code."
+        case "role_conflict": return "This email already belongs to the other role. Go back and pick that one."
+        case "email_failed": return "Couldn’t send the email. Try again in a moment."
+        case "otp_unavailable": return "Sign-in is down for a minute. Try again shortly."
+        case "unauthorized": return "Sign in again."
         default: return message
         }
     }
