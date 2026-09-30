@@ -6,21 +6,23 @@ struct HomePlaceholderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Home")
-                .font(.system(size: 34, weight: .bold))
+                .font(AppFont.largeTitle)
                 .foregroundStyle(Color.ink)
+                .tracking(AppTracking.largeTitle)
 
             Text(session.user?.displayName ?? "")
-                .font(.system(size: 22, weight: .semibold))
+                .font(AppFont.section)
                 .foregroundStyle(Color.ink)
+                .tracking(AppTracking.section)
 
             Text(session.user?.email ?? "")
-                .font(.system(size: 15))
+                .font(AppFont.body)
                 .foregroundStyle(Color.mute)
 
             Button("Sign out") {
                 session.signOut()
             }
-            .font(.system(size: 15, weight: .medium))
+            .font(AppFont.bodyMedium)
             .foregroundStyle(Color.forest)
 
             Spacer()

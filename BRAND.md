@@ -102,21 +102,27 @@ Volt is the Cash App–level punch. Pulse is the *nuance* (a second, cooler brig
 
 ## Typography
 
-**Family:** San Francisco (system). No custom files until we have a reason.
+**Display:** Clash Display (Bold / Semibold). Geometric, wide, tight. Titles and metric numbers — the Cash App punch. Never SF.
 
-| Role | Font | Weight | Size | Line | Tracking |
-|---|---|---|---|---|---|
-| Large title (`Home`) | SF Pro Display | Bold | 34 | 41 | -0.4 |
-| Screen title (sheets) | SF Pro Display | Semibold | 13 | 18 | 1.2 (uppercase) |
-| Section (`Latest Measurements`) | SF Pro Display | Semibold | 22 | 28 | -0.3 |
-| Metric number (`2,496`) | SF Pro Rounded | Bold | 40 | 44 | -0.8 |
-| Metric unit (`steps`, `mg/dL`) | SF Pro Text | Regular | 15 | 20 | 0 |
-| Body | SF Pro Text | Regular | 15 | 22 | 0 |
-| Caption / time | SF Pro Text | Regular | 13 | 18 | 0 |
-| Tab label | SF Pro Text | Medium | 10 | 12 | 0.2 |
-| Status chip | SF Pro Text | Medium | 12 | 16 | 0 |
+**Text:** Satoshi (Regular / Medium / Bold). Body, captions, buttons, field labels. Still geometric, not a system default.
 
-Metric numbers are **Rounded**. That is the Health Mate card + Cash App balance energy. Titles stay Display, not Rounded.
+Files live in `Fonts/`. Register in `Info.plist` `UIAppFonts`. Use `AppFont` in `Shared/Theme.swift` — do not call `.system`.
+
+| Role | Font | Weight | Size | Tracking |
+|---|---|---|---|---|
+| Large title (`Home`, `Who are you?`) | Clash Display | Bold | 40 | -1.2 |
+| Screen title (sheets) | Satoshi | Medium | 13 | 1.2 (uppercase) |
+| Section (`Latest Measurements`) | Clash Display | Semibold | 24 | -0.6 |
+| Card title | Clash Display | Semibold | 22 | -0.6 |
+| Metric number (`2,496`) | Clash Display | Bold | 44 | -1.4 |
+| Metric unit (`steps`, `mg/dL`) | Satoshi | Medium | 15 | 0 |
+| Body | Satoshi | Regular | 16 | 0 |
+| Caption / time | Satoshi | Regular | 13 | 0 |
+| Button | Satoshi | Bold | 17 | 0 |
+| Tab label | Satoshi | Medium | 10 | 0.2 |
+| Status chip | Satoshi | Medium | 12 | 0 |
+
+Metric numbers stay Clash Display, not Rounded SF. Titles never go Satoshi — Satoshi is the quiet layer under the shout.
 
 ---
 
@@ -185,6 +191,7 @@ Short. Direct. Like Cash App copy, not a clinic pamphlet.
 
 - Mint gradients, teal washes, stock “heart health” illustration.
 - Copying Cash App green `#00D632` or their logo.
+- San Francisco or any system UI font as the brand voice.
 - Light gray primary buttons.
 - More than four tabs.
 - A Watch app UI in this repo.

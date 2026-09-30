@@ -10,12 +10,12 @@ struct RoleSelectView: View {
                     Spacer()
 
                     Text("Who are you?")
-                        .font(.system(size: 34, weight: .bold, design: .default))
+                        .font(AppFont.largeTitle)
                         .foregroundStyle(Color.volt)
-                        .tracking(-0.4)
+                        .tracking(AppTracking.largeTitle)
 
-                    Text("Patient first. Caregiver is a different account, linked later by email.")
-                        .font(.system(size: 15, weight: .regular))
+                    Text("Here for your own health, or someone you care for?")
+                        .font(AppFont.body)
                         .foregroundStyle(Color.volt.opacity(0.85))
                         .lineSpacing(4)
 
@@ -23,13 +23,13 @@ struct RoleSelectView: View {
                         NavigationLink {
                             PatientAuthView()
                         } label: {
-                            roleCard(title: "I'm a patient", subtitle: "Track activity and glucose.")
+                            roleCard(title: "I'm a patient", subtitle: "Your activity and glucose.")
                         }
 
                         NavigationLink {
                             CaregiverGateView()
                         } label: {
-                            roleCard(title: "I'm a caregiver", subtitle: "Watch a linked patient. Not yet.")
+                            roleCard(title: "I'm a caregiver", subtitle: "See how they're doing.")
                         }
                     }
 
@@ -44,10 +44,11 @@ struct RoleSelectView: View {
     private func roleCard(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.system(size: 22, weight: .semibold))
+                .font(AppFont.cardTitle)
                 .foregroundStyle(Color.ink)
+                .tracking(AppTracking.section)
             Text(subtitle)
-                .font(.system(size: 15))
+                .font(AppFont.body)
                 .foregroundStyle(Color.mute)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

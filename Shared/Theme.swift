@@ -25,3 +25,25 @@ extension Color {
         )
     }
 }
+
+enum AppFont {
+    static let largeTitle = Font.custom("ClashDisplay-Bold", size: 40)
+    static let section = Font.custom("ClashDisplay-Semibold", size: 24)
+    static let cardTitle = Font.custom("ClashDisplay-Semibold", size: 22)
+    static let metric = Font.custom("ClashDisplay-Bold", size: 44)
+    static let button = Font.custom("Satoshi-Bold", size: 17)
+    static let body = Font.custom("Satoshi-Regular", size: 16)
+    static let bodyMedium = Font.custom("Satoshi-Medium", size: 16)
+    static let label = Font.custom("Satoshi-Medium", size: 13)
+    static let caption = Font.custom("Satoshi-Regular", size: 13)
+    static let captionMedium = Font.custom("Satoshi-Medium", size: 13)
+    static let tab = Font.custom("Satoshi-Medium", size: 10)
+    static let chip = Font.custom("Satoshi-Medium", size: 12)
+    static let unit = Font.custom("Satoshi-Medium", size: 15)
+}
+
+enum AppTracking {
+    static let largeTitle: CGFloat = -1.2
+    static let section: CGFloat = -0.6
+    static let metric: CGFloat = -1.4
+}

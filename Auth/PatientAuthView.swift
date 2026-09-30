@@ -13,12 +13,12 @@ struct PatientAuthView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text(isRegister ? "Create account" : "Sign in")
-                    .font(.system(size: 34, weight: .bold))
+                    .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
-                    .tracking(-0.4)
+                    .tracking(AppTracking.largeTitle)
 
-                Text("Role is PATIENT. You pick it here, not later.")
-                    .font(.system(size: 15))
+                Text(isRegister ? "This account keeps your activity and glucose." : "Welcome back.")
+                    .font(AppFont.body)
                     .foregroundStyle(Color.mute)
 
                 Picker("Mode", selection: $isRegister) {
@@ -26,6 +26,7 @@ struct PatientAuthView: View {
                     Text("Sign in").tag(false)
                 }
                 .pickerStyle(.segmented)
+                .font(AppFont.bodyMedium)
 
                 VStack(spacing: 12) {
                     if isRegister {
@@ -39,13 +40,13 @@ struct PatientAuthView: View {
 
                 if let errorText {
                     Text(errorText)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(AppFont.captionMedium)
                         .foregroundStyle(Color.alert)
                 }
 
                 Button(action: submit) {
-                    Text(isRegister ? "Create patient account" : "Sign in")
-                        .font(.system(size: 17, weight: .semibold))
+                    Text(isRegister ? "Create account" : "Sign in")
+                        .font(AppFont.button)
                         .foregroundStyle(Color.ink)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -63,7 +64,7 @@ struct PatientAuthView: View {
     private func field(_ title: String, text: Binding<String>, secure: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.system(size: 13, weight: .medium))
+                .font(AppFont.label)
                 .foregroundStyle(Color.mute)
             Group {
                 if secure {
@@ -72,6 +73,7 @@ struct PatientAuthView: View {
                     TextField("", text: text)
                 }
             }
+            .font(AppFont.body)
             .padding(14)
             .background(Color.card)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -101,7 +103,7 @@ struct PatientAuthView: View {
                     payload = try await auth.login(email: email, password: password)
                 }
                 if payload.user.role != "PATIENT" {
-                    errorText = "This login is not a patient."
+                    errorText = "This account isn't a patient. Go back and choose caregiver."
                     return
                 }
                 session.apply(payload)

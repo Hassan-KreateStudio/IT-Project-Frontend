@@ -4,11 +4,12 @@ struct CaregiverGateView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Caregiver")
-                .font(.system(size: 34, weight: .bold))
+                .font(AppFont.largeTitle)
                 .foregroundStyle(Color.ink)
+                .tracking(AppTracking.largeTitle)
 
-            Text("There is no invite code. A patient signs in, then links you with your email. We build that after patient login works.")
-                .font(.system(size: 15))
+            Text("Ask them to sign in first. They'll add you with your email.")
+                .font(AppFont.body)
                 .foregroundStyle(Color.mute)
                 .lineSpacing(4)
 
