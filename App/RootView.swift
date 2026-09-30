@@ -1,12 +1,18 @@
 import SwiftUI
 
 struct RootView: View {
+    @EnvironmentObject private var session: SessionStore
+
     var body: some View {
-        Text("IT Project")
-            .padding()
+        if session.isLoggedIn {
+            HomePlaceholderView()
+        } else {
+            RoleSelectView()
+        }
     }
 }
 
 #Preview {
     RootView()
+        .environmentObject(SessionStore())
 }
