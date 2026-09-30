@@ -53,6 +53,7 @@
 		7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAuthView.swift; sourceTree = "<group>"; };
 		2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePlaceholderView.swift; sourceTree = "<group>"; };
 		C3A1TAB01MAIN01F01 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		C3A1HK01ENTITLEMENTS /* ITProject.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ITProject.entitlements; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-ExtraBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-SemiBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Regular.otf"; sourceTree = "<group>"; };
@@ -79,6 +80,7 @@
 				A1F0B011C0A14B0E8E2C1A01 /* Fonts */,
 				42F7D0C86E52464CB4DF4427 /* Assets.xcassets */,
 				A1F0B011C0A14B0E8E2C1A10 /* Info.plist */,
+				C3A1HK01ENTITLEMENTS /* ITProject.entitlements */,
 				3277B018D0704CEEA5D8A36A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -346,6 +348,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ITProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -378,6 +381,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ITProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";

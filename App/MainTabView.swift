@@ -59,19 +59,109 @@ struct MainTabView: View {
 
 private struct TodayView: View {
     @EnvironmentObject private var session: SessionStore
+    @State private var health = HealthKitService()
+    @State private var prompted = false
+    @State private var busy = false
+    @State private var errorText: String?
+
+    private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
 
     var body: some View {
-        tabScreen(
-            title: session.user?.role == "CAREGIVER" ? "Their day" : greeting,
-            body: session.user?.role == "CAREGIVER"
-                ? "Pick someone in People. This tab will show their latest steps and glucose."
-                : "Latest steps, glucose, and alerts will live here. Log a reading with + — not a fifth tab."
-        )
+        VStack(alignment: .leading, spacing: 16) {
+            Text(isCaregiver ? "Their day" : greeting)
+                .font(AppFont.largeTitle)
+                .foregroundStyle(Color.ink)
+                .tracking(AppTracking.largeTitle)
+
+            if isCaregiver {
+                Text("Pick someone in People. This tab will show their latest steps and glucose.")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                    .lineSpacing(4)
+            } else if !HealthKitService.isAvailable {
+                Text("Health isn’t on this device, so Watch steps can’t land here. You can still log glucose later.")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                    .lineSpacing(4)
+            } else if !prompted {
+                permissionCard
+            } else {
+                Text("Latest steps, glucose, and alerts will live here. Log a reading with + — not a fifth tab.")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                    .lineSpacing(4)
+            }
+
+            if let errorText {
+                Text(errorText)
+                    .font(AppFont.captionMedium)
+                    .foregroundStyle(Color.alert)
+            }
+
+            Spacer()
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Color.canvas.ignoresSafeArea())
+        .onAppear {
+            prompted = health.hasPrompted
+        }
     }
 
     private var greeting: String {
         let name = session.user?.displayName.split(separator: " ").first.map(String.init) ?? "there"
         return "Hi, \(name)"
+    }
+
+    private var permissionCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Image(systemName: "applewatch")
+                .font(.system(size: 22, weight: .regular))
+                .foregroundStyle(Color.ink)
+
+            Text("Allow Health")
+                .font(AppFont.cardTitle)
+                .foregroundStyle(Color.ink)
+                .tracking(AppTracking.section)
+
+            Text("Your Watch writes to Health on this iPhone. Graph Health only reads it — steps, heart rate, and movement — so Today can fill in.")
+                .font(AppFont.body)
+                .foregroundStyle(Color.mute)
+                .lineSpacing(4)
+
+            Button(action: allowHealth) {
+                Text(busy ? "Working…" : "Allow Health")
+                    .font(AppFont.button)
+                    .foregroundStyle(Color.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.flare)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .disabled(busy)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.card)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.hairline, lineWidth: 1)
+        )
+    }
+
+    private func allowHealth() {
+        errorText = nil
+        busy = true
+        Task {
+            defer { busy = false }
+            do {
+                try await health.requestAccess()
+                prompted = health.hasPrompted
+            } catch {
+                errorText = error.localizedDescription
+            }
+        }
     }
 }
 
