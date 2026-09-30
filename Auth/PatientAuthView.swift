@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PatientAuthView: View {
     @EnvironmentObject private var session: SessionStore
@@ -24,12 +25,13 @@ struct PatientAuthView: View {
                     .font(AppFont.body)
                     .foregroundStyle(Color.mute)
 
-                Picker("Mode", selection: $isRegister) {
-                    Text("Create").tag(true)
-                    Text("Sign in").tag(false)
+                HStack(spacing: 0) {
+                    modeTab("Create", selected: isRegister) { isRegister = true }
+                    modeTab("Sign in", selected: !isRegister) { isRegister = false }
                 }
-                .pickerStyle(.segmented)
-                .font(AppFont.bodyMedium)
+                .padding(4)
+                .background(Color.mist)
+                .clipShape(Capsule())
 
                 VStack(spacing: 12) {
                     if isRegister {
@@ -61,8 +63,14 @@ struct PatientAuthView: View {
             .padding(20)
         }
         .background(Color.canvas.ignoresSafeArea())
+        .environment(\.colorScheme, .light)
         .preferredColorScheme(.light)
         .navigationBarTitleDisplayMode(.inline)
+        .tint(Color.flare)
+        .onAppear {
+            UITextField.appearance().textColor = UIColor(Color.ink)
+            UITextField.appearance().tintColor = UIColor(Color.flare)
+        }
     }
 
     private func field(_ title: String, text: Binding<String>, secure: Bool = false) -> some View {
@@ -72,12 +80,14 @@ struct PatientAuthView: View {
                 .foregroundStyle(Color.mute)
             Group {
                 if secure {
-                    SecureField("", text: text)
+                    SecureField("", text: text, prompt: Text(title).foregroundStyle(Color.mute))
                 } else {
-                    TextField("", text: text)
+                    TextField("", text: text, prompt: Text(title).foregroundStyle(Color.mute))
                 }
             }
             .font(AppFont.body)
+            .foregroundStyle(Color.ink)
+            .tint(Color.flare)
             .padding(14)
             .background(Color.card)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -86,6 +96,20 @@ struct PatientAuthView: View {
                     .stroke(Color.hairline, lineWidth: 1)
             )
         }
+    }
+
+    private func modeTab(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(AppFont.bodyMedium)
+                .foregroundStyle(selected ? Color.ink : Color.mute)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(selected ? Color.flare : Color.clear)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func submit() {
