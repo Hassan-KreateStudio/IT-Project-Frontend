@@ -23,7 +23,7 @@ struct HomePlaceholderView: View {
                 session.signOut()
             }
             .font(AppFont.bodyMedium)
-            .foregroundStyle(Color.forest)
+            .foregroundStyle(Color.flare)
 
             Spacer()
         }

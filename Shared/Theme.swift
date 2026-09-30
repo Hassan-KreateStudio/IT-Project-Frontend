@@ -1,19 +1,20 @@
 import SwiftUI
 
 extension Color {
-    static let ink = Color(hex: 0x07110E)
-    static let forest = Color(hex: 0x102920)
-    static let pine = Color(hex: 0x1B3D31)
-    static let volt = Color(hex: 0xC6F34A)
-    static let pulse = Color(hex: 0x3DFF9A)
-    static let canvas = Color(hex: 0xF3F5F1)
+    static let ink = Color(hex: 0x0A0A0A)
+    static let night = Color(hex: 0x161616)
+    static let dusk = Color(hex: 0x2A2A2A)
+    static let flare = Color(hex: 0xFF3DAB)
+    static let acid = Color(hex: 0xD8FF3C)
+    static let aurora = Color(hex: 0x3DFFE7)
+    static let canvas = Color(hex: 0xF6F4F0)
     static let card = Color.white
-    static let hairline = Color(hex: 0xDDE3DC)
-    static let mist = Color(hex: 0xE8EEE6)
+    static let hairline = Color(hex: 0xE6E2DC)
+    static let mist = Color(hex: 0xEFECE6)
     static let alert = Color(hex: 0xFF4D3A)
     static let warn = Color(hex: 0xFFB020)
     static let info = Color(hex: 0x4D7CFF)
-    static let mute = Color(hex: 0x5C6B64)
+    static let mute = Color(hex: 0x6E6E6E)
 
     init(hex: UInt, alpha: Double = 1) {
         self.init(
@@ -27,23 +28,23 @@ extension Color {
 }
 
 enum AppFont {
-    static let largeTitle = Font.custom("ClashDisplay-Bold", size: 40)
-    static let section = Font.custom("ClashDisplay-Semibold", size: 24)
-    static let cardTitle = Font.custom("ClashDisplay-Semibold", size: 22)
-    static let metric = Font.custom("ClashDisplay-Bold", size: 44)
-    static let button = Font.custom("Satoshi-Bold", size: 17)
-    static let body = Font.custom("Satoshi-Regular", size: 16)
-    static let bodyMedium = Font.custom("Satoshi-Medium", size: 16)
-    static let label = Font.custom("Satoshi-Medium", size: 13)
-    static let caption = Font.custom("Satoshi-Regular", size: 13)
-    static let captionMedium = Font.custom("Satoshi-Medium", size: 13)
-    static let tab = Font.custom("Satoshi-Medium", size: 10)
-    static let chip = Font.custom("Satoshi-Medium", size: 12)
-    static let unit = Font.custom("Satoshi-Medium", size: 15)
+    static let largeTitle = Font.custom("BricolageGrotesque-ExtraBold", size: 40)
+    static let section = Font.custom("BricolageGrotesque-ExtraBold", size: 24)
+    static let cardTitle = Font.custom("BricolageGrotesque-SemiBold", size: 22)
+    static let metric = Font.custom("BricolageGrotesque-ExtraBold", size: 44)
+    static let button = Font.custom("Outfit-Bold", size: 17)
+    static let body = Font.custom("Outfit-Regular", size: 16)
+    static let bodyMedium = Font.custom("Outfit-Medium", size: 16)
+    static let label = Font.custom("Outfit-Medium", size: 13)
+    static let caption = Font.custom("Outfit-Regular", size: 13)
+    static let captionMedium = Font.custom("Outfit-Medium", size: 13)
+    static let tab = Font.custom("Outfit-Medium", size: 10)
+    static let chip = Font.custom("Outfit-Medium", size: 12)
+    static let unit = Font.custom("Outfit-Medium", size: 15)
 }
 
 enum AppTracking {
-    static let largeTitle: CGFloat = -1.2
-    static let section: CGFloat = -0.6
-    static let metric: CGFloat = -1.4
+    static let largeTitle: CGFloat = -0.8
+    static let section: CGFloat = -0.4
+    static let metric: CGFloat = -1.0
 }

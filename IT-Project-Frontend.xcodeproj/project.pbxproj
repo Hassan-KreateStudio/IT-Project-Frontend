@@ -24,11 +24,11 @@
 		92BAFED9CF8C43C79C45C836 /* PatientAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */; };
 		A351034E477E497F81DAB227 /* CaregiverGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE6C1A53DA7430CBA807C48 /* CaregiverGateView.swift */; };
 		8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */; };
-		A1F0B011C0A14B0E8E2C1B02 /* ClashDisplay-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A02 /* ClashDisplay-Bold.otf */; };
-		A1F0B011C0A14B0E8E2C1B03 /* ClashDisplay-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A03 /* ClashDisplay-Semibold.otf */; };
-		A1F0B011C0A14B0E8E2C1B05 /* Satoshi-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A05 /* Satoshi-Regular.otf */; };
-		A1F0B011C0A14B0E8E2C1B06 /* Satoshi-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A06 /* Satoshi-Medium.otf */; };
-		A1F0B011C0A14B0E8E2C1B07 /* Satoshi-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A07 /* Satoshi-Bold.otf */; };
+		A1F0B011C0A14B0E8E2C1B02 /* BricolageGrotesque-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */; };
+		A1F0B011C0A14B0E8E2C1B03 /* BricolageGrotesque-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */; };
+		A1F0B011C0A14B0E8E2C1B05 /* Outfit-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */; };
+		A1F0B011C0A14B0E8E2C1B06 /* Outfit-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A06 /* Outfit-Medium.otf */; };
+		A1F0B011C0A14B0E8E2C1B07 /* Outfit-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A07 /* Outfit-Bold.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,13 +51,13 @@
 		7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatientAuthView.swift; sourceTree = "<group>"; };
 		5FE6C1A53DA7430CBA807C48 /* CaregiverGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverGateView.swift; sourceTree = "<group>"; };
 		2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePlaceholderView.swift; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A02 /* ClashDisplay-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "ClashDisplay-Bold.otf"; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A03 /* ClashDisplay-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "ClashDisplay-Semibold.otf"; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A05 /* Satoshi-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Satoshi-Regular.otf"; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A06 /* Satoshi-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Satoshi-Medium.otf"; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A07 /* Satoshi-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Satoshi-Bold.otf"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-ExtraBold.otf"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-SemiBold.otf"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Regular.otf"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A06 /* Outfit-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Medium.otf"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A07 /* Outfit-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Bold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1F0B011C0A14B0E8E2C1A09 /* LICENSE-FFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LICENSE-FFL.txt"; sourceTree = "<group>"; };
+		A1F0B011C0A14B0E8E2C1A09 /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "OFL.txt"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -84,12 +84,12 @@
 		A1F0B011C0A14B0E8E2C1A01 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				A1F0B011C0A14B0E8E2C1A02 /* ClashDisplay-Bold.otf */,
-				A1F0B011C0A14B0E8E2C1A03 /* ClashDisplay-Semibold.otf */,
-				A1F0B011C0A14B0E8E2C1A05 /* Satoshi-Regular.otf */,
-				A1F0B011C0A14B0E8E2C1A06 /* Satoshi-Medium.otf */,
-				A1F0B011C0A14B0E8E2C1A07 /* Satoshi-Bold.otf */,
-				A1F0B011C0A14B0E8E2C1A09 /* LICENSE-FFL.txt */,
+				A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */,
+				A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */,
+				A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */,
+				A1F0B011C0A14B0E8E2C1A06 /* Outfit-Medium.otf */,
+				A1F0B011C0A14B0E8E2C1A07 /* Outfit-Bold.otf */,
+				A1F0B011C0A14B0E8E2C1A09 /* OFL.txt */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -248,11 +248,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				98372BA566DC41B695FCB623 /* Assets.xcassets in Resources */,
-				A1F0B011C0A14B0E8E2C1B02 /* ClashDisplay-Bold.otf in Resources */,
-				A1F0B011C0A14B0E8E2C1B03 /* ClashDisplay-Semibold.otf in Resources */,
-				A1F0B011C0A14B0E8E2C1B05 /* Satoshi-Regular.otf in Resources */,
-				A1F0B011C0A14B0E8E2C1B06 /* Satoshi-Medium.otf in Resources */,
-				A1F0B011C0A14B0E8E2C1B07 /* Satoshi-Bold.otf in Resources */,
+				A1F0B011C0A14B0E8E2C1B02 /* BricolageGrotesque-ExtraBold.otf in Resources */,
+				A1F0B011C0A14B0E8E2C1B03 /* BricolageGrotesque-SemiBold.otf in Resources */,
+				A1F0B011C0A14B0E8E2C1B05 /* Outfit-Regular.otf in Resources */,
+				A1F0B011C0A14B0E8E2C1B06 /* Outfit-Medium.otf in Resources */,
+				A1F0B011C0A14B0E8E2C1B07 /* Outfit-Bold.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

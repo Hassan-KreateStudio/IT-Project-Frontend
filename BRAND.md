@@ -1,6 +1,6 @@
 # Brand UI — IT Project
 
-Reference for the iPhone app. Structure and iconography follow the Health Mate–style screens. Color and type do **not**. Voice is closer to Cash App: one loud accent on a dark primary, big numbers, high contrast. Product is still activity + glucose + caregiver — not BMI, weight, or blood pressure.
+Reference for the iPhone app. Structure and iconography follow the Health Mate–style screens. Color and type do **not**. Voice is closer to Cash App’s *card fan*: black stage, white type, a few loud pigments that change per surface. Product is still activity + glucose + caregiver — not BMI, weight, or blood pressure.
 
 Watch → HealthKit on the phone → this app → GraphQL. The brand never lives on the Watch.
 
@@ -21,7 +21,7 @@ Watch → HealthKit on the phone → this app → GraphQL. The brand never lives
 
 **Leave behind**
 
-- Mint / teal / “wellness app” greens.
+- Mint / teal / “wellness app” greens. Green-black ink. A lime-only identity.
 - Light-green gradient heart banners as the brand.
 - Generic marketing body copy as the home hero.
 - Extra tabs we do not have (generic “Devices store”).
@@ -38,13 +38,14 @@ Watch → HealthKit on the phone → this app → GraphQL. The brand never lives
 
 ## What we take from Cash App
 
-- **Dark primary, electric secondary.** Black-green ink for chrome and type. A *bright* lime for action, money-in-the-account energy, success.
-- Huge numerals. Tight tracking on titles. Lots of leftover space.
-- One accent at a time. Do not mint + lime + teal + blue on one card.
-- Dynamic: home is quiet cards; a goal or alert can go **full-screen accent**.
-- Playful geometry (circles, fat rounding) without cartoon illustration.
+Take the **card fan**, not the chrome.
 
-We do **not** copy Cash App’s `#00D632` or their wordmark. Same *attitude*, different pigment so it stays a health graph product.
+- True **black stage**. White type. Fat rounded tiles.
+- **A fan of loud pigments**, not one lime forever. Magenta, acid yellow-green, ice white, iridescent teal can sit next to each other — different cards, different color.
+- Dynamic: a screen can go full-bleed black, full-bleed flare, or quiet canvas. Home stays quiet. Role / goal / alert can shout.
+- Huge numerals. Leftover space. Playful geometry without cartoon mascots.
+
+Leave behind Cash App’s `#00D632`, lime status bar, `$` mark, and “everything is green.” Leave behind Loft’s Space Grotesk + Inter. This is a health graph product with its own pigment.
 
 ---
 
@@ -52,33 +53,34 @@ We do **not** copy Cash App’s `#00D632` or their wordmark. Same *attitude*, di
 
 Use these names in `Assets.xcassets/Colors/` and `Shared/Theme.swift`. Hex is sRGB.
 
-### Primary (dark)
+### Stage (dark)
 
 | Token | Hex | Use |
 |---|---|---|
-| `Ink` | `#07110E` | Primary text, tab selected, key buttons, sheet handles |
-| `Forest` | `#102920` | Top bars on dark screens, avatar fill, selected chip fill |
-| `Pine` | `#1B3D31` | Secondary dark (dividers on dark surfaces, icon circles on dark) |
+| `Ink` | `#0A0A0A` | Black stage, primary text on light, tab selected |
+| `Night` | `#161616` | Elevated black (icon circles, chips on dark) |
+| `Dusk` | `#2A2A2A` | Dividers on dark surfaces |
 
-Ink is almost black with a green undertone. That is the “darker primary.”
+Ink is **neutral black**. No green undertone.
 
-### Secondary (bright)
+### Fan (bright)
 
 | Token | Hex | Use |
 |---|---|---|
-| `Volt` | `#C6F34A` | Primary CTA, selected tab accent, success, “synced”, positive sparkline |
-| `Pulse` | `#3DFF9A` | Charts only (glucose/activity line). Never large fills. |
+| `Flare` | `#FF3DAB` | Identity accent. Primary CTA, patient card, selected tab, “you” |
+| `Acid` | `#D8FF3C` | Second shout. Caregiver card, success, “synced”. Never the whole app |
+| `Aurora` | `#3DFFE7` | Charts only (the iridescent card). Never large fills |
 
-Volt is the Cash App–level punch. Pulse is the *nuance* (a second, cooler bright) so charts are not flat yellow-green.
+Flare is the brand. Acid is a *card in the fan*, not Cash App green.
 
 ### Surfaces
 
 | Token | Hex | Use |
 |---|---|---|
-| `Canvas` | `#F3F5F1` | App background (Health Mate’s soft field, less mint) |
+| `Canvas` | `#F6F4F0` | Light app background (warm, not mint) |
 | `Card` | `#FFFFFF` | Measurement cards, sheets, inputs |
-| `Hairline` | `#DDE3DC` | Card borders, separators |
-| `Mist` | `#E8EEE6` | Chip fills, icon button backgrounds |
+| `Hairline` | `#E6E2DC` | Card borders, separators |
+| `Mist` | `#EFECE6` | Chip fills, icon button backgrounds |
 
 ### Semantic (bright, not pastel)
 
@@ -86,43 +88,43 @@ Volt is the Cash App–level punch. Pulse is the *nuance* (a second, cooler brig
 |---|---|---|
 | `Alert` | `#FF4D3A` | High glucose, destructive |
 | `Warn` | `#FFB020` | High sedentary, caution status dot |
-| `Info` | `#4D7CFF` | Low glucose, informational (Health Mate’s blue *i*) |
-| `Mute` | `#5C6B64` | Secondary text, timestamps, tab idle |
+| `Info` | `#4D7CFF` | Low glucose, informational |
+| `Mute` | `#6E6E6E` | Secondary text, timestamps, tab idle |
 
 ### Pairing rules
 
-1. **Idle chrome:** Canvas + Card + Ink text + Mute captions. No Volt until something is active.
-2. **Primary button:** Forest fill + Volt label, **or** Volt fill + Ink label. Never Volt fill + white (too close to Cash App clone and fails contrast on lime).
-3. **Banner:** Forest (or Ink) fill, Volt for the icon/link — not a mint gradient.
-4. **Full-bleed task:** Forest or Ink background, Volt circle, Canvas/Volt type. One color field, like the teal step-goal screen, but dark + lime.
+1. **Idle chrome:** Canvas + Card + Ink text + Mute captions. No Flare until something is active.
+2. **Primary button:** Flare fill + Ink label. Not Acid fill + white. Not Cash App green.
+3. **Role / fan cards:** each tile a *different* fan color. Never two of the same shout stacked.
+4. **Banner / full-bleed:** Ink stage + white type, **or** one fan color dipped full-screen. Not forest + lime.
 5. **Alerts:** one semantic color as a **dot or left rail**, not a whole card fill.
-6. Do not put Volt and Pulse on the same component.
+6. Do not put Flare and Acid on the same component. Aurora never as a fill.
 
 ---
 
 ## Typography
 
-**Display:** Clash Display (Bold / Semibold). Geometric, wide, tight. Titles and metric numbers — the Cash App punch. Never SF.
+**Display:** Bricolage Grotesque (ExtraBold / SemiBold). Ink-trapped, a little weird, strong. Titles and metric numbers.
 
-**Text:** Satoshi (Regular / Medium / Bold). Body, captions, buttons, field labels. Still geometric, not a system default.
+**Text:** Outfit (Regular / Medium / Bold). Rounder geometric body. Not Inter, not Satoshi, not Space Grotesk.
 
 Files live in `Fonts/`. Register in `Info.plist` `UIAppFonts`. Use `AppFont` in `Shared/Theme.swift` — do not call `.system`.
 
 | Role | Font | Weight | Size | Tracking |
 |---|---|---|---|---|
-| Large title (`Home`, `Who are you?`) | Clash Display | Bold | 40 | -1.2 |
-| Screen title (sheets) | Satoshi | Medium | 13 | 1.2 (uppercase) |
-| Section (`Latest Measurements`) | Clash Display | Semibold | 24 | -0.6 |
-| Card title | Clash Display | Semibold | 22 | -0.6 |
-| Metric number (`2,496`) | Clash Display | Bold | 44 | -1.4 |
-| Metric unit (`steps`, `mg/dL`) | Satoshi | Medium | 15 | 0 |
-| Body | Satoshi | Regular | 16 | 0 |
-| Caption / time | Satoshi | Regular | 13 | 0 |
-| Button | Satoshi | Bold | 17 | 0 |
-| Tab label | Satoshi | Medium | 10 | 0.2 |
-| Status chip | Satoshi | Medium | 12 | 0 |
+| Large title (`Home`, `Who are you?`) | Bricolage Grotesque | ExtraBold | 40 | -0.8 |
+| Screen title (sheets) | Outfit | Medium | 13 | 1.2 (uppercase) |
+| Section (`Latest Measurements`) | Bricolage Grotesque | ExtraBold | 24 | -0.4 |
+| Card title | Bricolage Grotesque | SemiBold | 22 | -0.4 |
+| Metric number (`2,496`) | Bricolage Grotesque | ExtraBold | 44 | -1.0 |
+| Metric unit (`steps`, `mg/dL`) | Outfit | Medium | 15 | 0 |
+| Body | Outfit | Regular | 16 | 0 |
+| Caption / time | Outfit | Regular | 13 | 0 |
+| Button | Outfit | Bold | 17 | 0 |
+| Tab label | Outfit | Medium | 10 | 0.2 |
+| Status chip | Outfit | Medium | 12 | 0 |
 
-Metric numbers stay Clash Display, not Rounded SF. Titles never go Satoshi — Satoshi is the quiet layer under the shout.
+Titles never go Outfit. Outfit is the quiet layer under the shout.
 
 ---
 
@@ -145,7 +147,7 @@ SF Symbols, **Regular**, hierarchical, point size **22** in the nav, **24** in t
 
 Status dots: 8pt circle, semantic color, 6pt from the label. No emoji. No custom illustrated mascots on v1.
 
-Tab bar: four items — **Home**, **Dashboard**, **Watch**, **Profile**. Selected = Forest icon + Volt indicator (small), not Health Mate’s purple.
+Tab bar: four items — **Home**, **Dashboard**, **Watch**, **Profile**. Selected = Ink icon + Flare indicator (small), not Health Mate’s purple, not Cash App lime.
 
 ---
 
@@ -190,8 +192,8 @@ Short. Direct. Like Cash App copy, not a clinic pamphlet.
 ## Out of bounds
 
 - Mint gradients, teal washes, stock “heart health” illustration.
-- Copying Cash App green `#00D632` or their logo.
-- San Francisco or any system UI font as the brand voice.
+- Copying Cash App green `#00D632`, their lime status bar, or their logo.
+- Clash Display, Satoshi, Space Grotesk, Inter, or San Francisco as the brand voice.
 - Light gray primary buttons.
 - More than four tabs.
 - A Watch app UI in this repo.

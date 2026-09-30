@@ -50,7 +50,7 @@ struct PatientAuthView: View {
                         .foregroundStyle(Color.ink)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.volt)
+                        .background(Color.flare)
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .disabled(busy)
@@ -58,6 +58,7 @@ struct PatientAuthView: View {
             .padding(20)
         }
         .background(Color.canvas.ignoresSafeArea())
+        .preferredColorScheme(.light)
         .navigationBarTitleDisplayMode(.inline)
     }
 

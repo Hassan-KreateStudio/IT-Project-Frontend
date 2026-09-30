@@ -18,6 +18,7 @@ struct CaregiverGateView: View {
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.canvas.ignoresSafeArea())
+        .preferredColorScheme(.light)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
