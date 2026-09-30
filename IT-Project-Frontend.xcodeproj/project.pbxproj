@@ -1,0 +1,371 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+/* Begin PBXBuildFile section */
+		B8E3BFA6002E4932B4A7B154 /* ITProjectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EA896EC2CB4E268CE13C43 /* ITProjectApp.swift */; };
+		55C0102FFE064820A730D88A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CABE6419C54F4BDC97DC3C62 /* RootView.swift */; };
+		F29817D099DE4EE196563A97 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6571FEBC77D045A8BBC877D2 /* API.swift */; };
+		652BB273757E4D1BB1571694 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F96BBD36AF047A9A75B8536 /* Client.swift */; };
+		5A49F8FC935C4D879C174FD0 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3802A28D030949068A973A22 /* AuthService.swift */; };
+		4F51F1FE33D143A58E2DEE62 /* CaregiverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */; };
+		0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA67845FC704505A765B22E /* ActivityService.swift */; };
+		DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */; };
+		7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162AC86725A34C50A3F88B4A /* GlucoseService.swift */; };
+		74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675C44D70254391BA0D3D80 /* AnalysisService.swift */; };
+		E836F6B174024EFFA414FDDD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE49974B11634931A701A248 /* Models.swift */; };
+		98372BA566DC41B695FCB623 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 42F7D0C86E52464CB4DF4427 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4F88BF57C4554F6BAC2F95B7 /* ITProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ITProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49EA896EC2CB4E268CE13C43 /* ITProjectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ITProjectApp.swift; sourceTree = "<group>"; };
+		CABE6419C54F4BDC97DC3C62 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		6571FEBC77D045A8BBC877D2 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		6F96BBD36AF047A9A75B8536 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		3802A28D030949068A973A22 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverService.swift; sourceTree = "<group>"; };
+		6EA67845FC704505A765B22E /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
+		F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		162AC86725A34C50A3F88B4A /* GlucoseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseService.swift; sourceTree = "<group>"; };
+		9675C44D70254391BA0D3D80 /* AnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisService.swift; sourceTree = "<group>"; };
+		CE49974B11634931A701A248 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		42F7D0C86E52464CB4DF4427 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0B5BBA3F082B43EFB730440F = {
+			isa = PBXGroup;
+			children = (
+				9EF3A3817A8041179153BEAC /* App */,
+				C8AA4143E7AA47A499344501 /* Config */,
+				ACEA1CA78AB949BEA1649AE5 /* GraphQL */,
+				B8308A30BE314D92B3C15ACC /* Auth */,
+				8A5ED05EEF2843FEBEBA9D5D /* Caregiver */,
+				AF8AA1E4D4EA492DB3B9971C /* Activity */,
+				EF480E0449E349769DF5B9B1 /* HealthKit */,
+				C49CBEA63E9C4B6193BE1B93 /* Glucose */,
+				6C5AE88B9E754F56AF582FD5 /* Analysis */,
+				159B6E7AE9FC46E7916D80F3 /* Shared */,
+				42F7D0C86E52464CB4DF4427 /* Assets.xcassets */,
+				3277B018D0704CEEA5D8A36A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3277B018D0704CEEA5D8A36A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4F88BF57C4554F6BAC2F95B7 /* ITProject.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9EF3A3817A8041179153BEAC /* App */ = {
+			isa = PBXGroup;
+			children = (
+				49EA896EC2CB4E268CE13C43 /* ITProjectApp.swift */,
+				CABE6419C54F4BDC97DC3C62 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C8AA4143E7AA47A499344501 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				6571FEBC77D045A8BBC877D2 /* API.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		ACEA1CA78AB949BEA1649AE5 /* GraphQL */ = {
+			isa = PBXGroup;
+			children = (
+				6F96BBD36AF047A9A75B8536 /* Client.swift */,
+			);
+			path = GraphQL;
+			sourceTree = "<group>";
+		};
+		B8308A30BE314D92B3C15ACC /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				3802A28D030949068A973A22 /* AuthService.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		8A5ED05EEF2843FEBEBA9D5D /* Caregiver */ = {
+			isa = PBXGroup;
+			children = (
+				E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */,
+			);
+			path = Caregiver;
+			sourceTree = "<group>";
+		};
+		AF8AA1E4D4EA492DB3B9971C /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				6EA67845FC704505A765B22E /* ActivityService.swift */,
+			);
+			path = Activity;
+			sourceTree = "<group>";
+		};
+		EF480E0449E349769DF5B9B1 /* HealthKit */ = {
+			isa = PBXGroup;
+			children = (
+				F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */,
+			);
+			path = HealthKit;
+			sourceTree = "<group>";
+		};
+		C49CBEA63E9C4B6193BE1B93 /* Glucose */ = {
+			isa = PBXGroup;
+			children = (
+				162AC86725A34C50A3F88B4A /* GlucoseService.swift */,
+			);
+			path = Glucose;
+			sourceTree = "<group>";
+		};
+		6C5AE88B9E754F56AF582FD5 /* Analysis */ = {
+			isa = PBXGroup;
+			children = (
+				9675C44D70254391BA0D3D80 /* AnalysisService.swift */,
+			);
+			path = Analysis;
+			sourceTree = "<group>";
+		};
+		159B6E7AE9FC46E7916D80F3 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				CE49974B11634931A701A248 /* Models.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		53D8E8F15CD44D3690195002 /* ITProject */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 245B2D8D0B154AB7AF3F9FF1 /* Build configuration list for PBXNativeTarget "ITProject" */;
+			buildPhases = (
+				99FCD4A1747845729709267C /* Sources */,
+				E58845E3D90D4611A772BE7B /* Frameworks */,
+				AF60894D5B8947D59D7C8A72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ITProject;
+			productName = ITProject;
+			productReference = 4F88BF57C4554F6BAC2F95B7 /* ITProject.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		234599B63BDF422883A2B734 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					53D8E8F15CD44D3690195002 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 083537E731904A02B198F274 /* Build configuration list for PBXProject "IT-Project-Frontend" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0B5BBA3F082B43EFB730440F;
+			productRefGroup = 3277B018D0704CEEA5D8A36A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				53D8E8F15CD44D3690195002 /* ITProject */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AF60894D5B8947D59D7C8A72 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				98372BA566DC41B695FCB623 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E58845E3D90D4611A772BE7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		99FCD4A1747845729709267C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B8E3BFA6002E4932B4A7B154 /* ITProjectApp.swift in Sources */,
+				55C0102FFE064820A730D88A /* RootView.swift in Sources */,
+				F29817D099DE4EE196563A97 /* API.swift in Sources */,
+				652BB273757E4D1BB1571694 /* Client.swift in Sources */,
+				5A49F8FC935C4D879C174FD0 /* AuthService.swift in Sources */,
+				4F51F1FE33D143A58E2DEE62 /* CaregiverService.swift in Sources */,
+				0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */,
+				DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */,
+				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,
+				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,
+				E836F6B174024EFFA414FDDD /* Models.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F1DC511E25234A288AB2799C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+
+			};
+			name = Debug;
+		};
+		F8CC58364FE24208B0EC3760 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+
+			};
+			name = Release;
+		};
+		7A2CA7E4B1B64D4CBE93D138 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "IT Project";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.HassanKreateStudio.ITProject;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+
+			};
+			name = Debug;
+		};
+		F1823BDF454241D19335F8C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "IT Project";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.HassanKreateStudio.ITProject;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		083537E731904A02B198F274 /* Build configuration list for PBXProject "IT-Project-Frontend" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1DC511E25234A288AB2799C /* Debug */,
+				F8CC58364FE24208B0EC3760 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		245B2D8D0B154AB7AF3F9FF1 /* Build configuration list for PBXNativeTarget "ITProject" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A2CA7E4B1B64D4CBE93D138 /* Debug */,
+				F1823BDF454241D19335F8C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 234599B63BDF422883A2B734 /* Project object */;
+}
