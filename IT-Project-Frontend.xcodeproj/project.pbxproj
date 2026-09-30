@@ -24,6 +24,7 @@
 		1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D61D87135346E496A97DBE /* RoleSelectView.swift */; };
 		92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */; };
 		8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */; };
+		C3A1TAB01MAIN01B01 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A1TAB01MAIN01F01 /* MainTabView.swift */; };
 		A1F0B011C0A14B0E8E2C1B02 /* BricolageGrotesque-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */; };
 		A1F0B011C0A14B0E8E2C1B03 /* BricolageGrotesque-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */; };
 		A1F0B011C0A14B0E8E2C1B05 /* Outfit-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */; };
@@ -51,6 +52,7 @@
 		D7D61D87135346E496A97DBE /* RoleSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleSelectView.swift; sourceTree = "<group>"; };
 		7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAuthView.swift; sourceTree = "<group>"; };
 		2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePlaceholderView.swift; sourceTree = "<group>"; };
+		C3A1TAB01MAIN01F01 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-ExtraBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-SemiBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Regular.otf"; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 				49EA896EC2CB4E268CE13C43 /* ITProjectApp.swift */,
 				CABE6419C54F4BDC97DC3C62 /* RootView.swift */,
 				2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */,
+				C3A1TAB01MAIN01F01 /* MainTabView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 				1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */,
 				92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */,
 				8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */,
+				C3A1TAB01MAIN01B01 /* MainTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

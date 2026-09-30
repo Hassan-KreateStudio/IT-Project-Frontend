@@ -5,7 +5,7 @@ struct RootView: View {
 
     var body: some View {
         if session.isLoggedIn {
-            HomePlaceholderView()
+            MainTabView()
         } else {
             RoleSelectView()
         }
