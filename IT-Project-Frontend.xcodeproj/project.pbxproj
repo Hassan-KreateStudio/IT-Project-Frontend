@@ -19,6 +19,7 @@
 		E836F6B174024EFFA414FDDD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE49974B11634931A701A248 /* Models.swift */; };
 		98372BA566DC41B695FCB623 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 42F7D0C86E52464CB4DF4427 /* Assets.xcassets */; };
 		2AE0AC29DC214F22B10ADAB6 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5400E78ACEF143CC8D5EFD64 /* Theme.swift */; };
+		B8A1C011C0A14B0E8E2C1D02 /* BrandMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */; };
 		05CCC3720E4548F693651C97 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DEF77F62A34AD5A70662A1 /* SessionStore.swift */; };
 		1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D61D87135346E496A97DBE /* RoleSelectView.swift */; };
 		92BAFED9CF8C43C79C45C836 /* PatientAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */; };
@@ -46,6 +47,7 @@
 		CE49974B11634931A701A248 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		42F7D0C86E52464CB4DF4427 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5400E78ACEF143CC8D5EFD64 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandMark.swift; sourceTree = "<group>"; };
 		77DEF77F62A34AD5A70662A1 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		D7D61D87135346E496A97DBE /* RoleSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleSelectView.swift; sourceTree = "<group>"; };
 		7510AB184EFB4E81937E9BBB /* PatientAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatientAuthView.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 			children = (
 				CE49974B11634931A701A248 /* Models.swift */,
 				5400E78ACEF143CC8D5EFD64 /* Theme.swift */,
+				B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,
 				E836F6B174024EFFA414FDDD /* Models.swift in Sources */,
 				2AE0AC29DC214F22B10ADAB6 /* Theme.swift in Sources */,
+				B8A1C011C0A14B0E8E2C1D02 /* BrandMark.swift in Sources */,
 				05CCC3720E4548F693651C97 /* SessionStore.swift in Sources */,
 				1162A9A423C54A40A77CBD2C /* RoleSelectView.swift in Sources */,
 				92BAFED9CF8C43C79C45C836 /* PatientAuthView.swift in Sources */,

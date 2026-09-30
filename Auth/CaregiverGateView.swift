@@ -3,6 +3,9 @@ import SwiftUI
 struct CaregiverGateView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            BrandMark(tiled: true)
+                .frame(width: 56, height: 56)
+
             Text("Caregiver")
                 .font(AppFont.largeTitle)
                 .foregroundStyle(Color.ink)

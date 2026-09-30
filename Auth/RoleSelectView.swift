@@ -9,6 +9,9 @@ struct RoleSelectView: View {
                 VStack(alignment: .leading, spacing: 28) {
                     Spacer()
 
+                    BrandMark()
+                        .frame(width: 64, height: 64)
+
                     Text("Who are you?")
                         .font(AppFont.largeTitle)
                         .foregroundStyle(Color.white)

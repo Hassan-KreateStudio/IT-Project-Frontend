@@ -130,6 +130,8 @@ Titles never go Outfit. Outfit is the quiet layer under the shout.
 
 ## Iconography
 
+**Mark:** a flare health cross with an acid sparkline and aurora nodes. `BrandMark` in `Shared/BrandMark.swift`. App icon is the same on ink, in `Assets.xcassets/AppIcon.appiconset/`. Login shows the mark; light screens use the tiled (black square) version.
+
 SF Symbols, **Regular**, hierarchical, point size **22** in the nav, **24** in the tab bar, **16** inline on cards.
 
 | Action | Symbol |

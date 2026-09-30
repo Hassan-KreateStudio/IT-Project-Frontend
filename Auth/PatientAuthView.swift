@@ -12,6 +12,9 @@ struct PatientAuthView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                BrandMark(tiled: true)
+                    .frame(width: 56, height: 56)
+
                 Text(isRegister ? "Create account" : "Sign in")
                     .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
