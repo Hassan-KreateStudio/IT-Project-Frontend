@@ -9,6 +9,7 @@ struct EmailAuthView: View {
     @State private var email = ""
     @State private var code = ""
     @State private var sent = false
+    @State private var needsName = false
     @State private var errorText: String?
     @State private var busy = false
 
@@ -21,16 +22,12 @@ struct EmailAuthView: View {
                 BrandMark(tiled: true)
                     .frame(width: 56, height: 56)
 
-                Text(sent ? "Check your email" : (isPatient ? "Your health space" : "Here for them"))
+                Text(headline)
                     .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
                     .tracking(AppTracking.largeTitle)
 
-                Text(sent
-                     ? "We sent a 6-digit code to \(email). Check spam if it isn’t there."
-                     : (isPatient
-                        ? "We’ll email you a code. This account keeps your activity and glucose."
-                        : "We’ll email you a code. They can add you with this same email."))
+                Text(subhead)
                     .font(AppFont.body)
                     .foregroundStyle(Color.mute)
                     .lineSpacing(4)
@@ -45,16 +42,14 @@ struct EmailAuthView: View {
                                 code = String(digits.prefix(6))
                             }
                     } else {
-                        field("Name", text: $displayName)
-                            .textContentType(.name)
-                        Text("First time only. Returning? Skip it.")
-                            .font(AppFont.caption)
-                            .foregroundStyle(Color.mute)
-                            .frame(maxWidth: .infinity, alignment: .leading)
                         field("Email", text: $email)
                             .textInputAutocapitalization(.never)
                             .keyboardType(.emailAddress)
                             .textContentType(.emailAddress)
+                        if needsName {
+                            field("Name", text: $displayName)
+                                .textContentType(.name)
+                        }
                     }
                 }
 
@@ -73,11 +68,13 @@ struct EmailAuthView: View {
                         .background(accent)
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-                .disabled(busy || (sent && code.count != 6))
+                .disabled(busy || (sent && code.count != 6) || (needsName && !sent && displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
 
                 if sent {
                     Button("Use a different email") {
                         sent = false
+                        needsName = false
+                        displayName = ""
                         code = ""
                         errorText = nil
                     }
@@ -101,6 +98,24 @@ struct EmailAuthView: View {
             UITextField.appearance().textColor = UIColor(Color.ink)
             UITextField.appearance().tintColor = UIColor(accent)
         }
+    }
+
+    private var headline: String {
+        if sent { return "Check your email" }
+        if needsName { return "What should we call you?" }
+        return isPatient ? "Your health space" : "Here for them"
+    }
+
+    private var subhead: String {
+        if sent {
+            return "We sent a 6-digit code to \(email). Check spam if it isn’t there."
+        }
+        if needsName {
+            return "This email is new. Your name stays on the account — we won’t ask again."
+        }
+        return isPatient
+            ? "We’ll email you a code. This account keeps your activity and glucose."
+            : "We’ll email you a code. They can add you with this same email."
     }
 
     private func field(_ title: String, text: Binding<String>) -> some View {
@@ -131,10 +146,17 @@ struct EmailAuthView: View {
                 _ = try await AuthService(client: GraphQLClient()).requestAuthCode(
                     email: email,
                     role: role,
-                    displayName: displayName
+                    displayName: needsName ? displayName : ""
                 )
                 code = ""
                 sent = true
+            } catch let err as GraphQLError {
+                if err.extensions?.code == "invalid_display_name" {
+                    needsName = true
+                    errorText = nil
+                } else {
+                    errorText = err.errorDescription
+                }
             } catch {
                 errorText = error.localizedDescription
             }
