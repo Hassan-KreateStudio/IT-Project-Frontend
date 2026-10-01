@@ -15,4 +15,5 @@ struct RootView: View {
 #Preview {
     RootView()
         .environmentObject(SessionStore())
+        .environmentObject(GraphStore(inMemory: true))
 }

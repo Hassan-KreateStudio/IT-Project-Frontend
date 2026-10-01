@@ -59,9 +59,11 @@ struct MainTabView: View {
 
 private struct TodayView: View {
     @EnvironmentObject private var session: SessionStore
+    @EnvironmentObject private var graph: GraphStore
     @State private var health = HealthKitService()
     @State private var prompted = false
-    @State private var busy = false
+    @State private var ingesting = false
+    @State private var syncNote: String?
     @State private var errorText: String?
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
@@ -85,17 +87,32 @@ private struct TodayView: View {
                     .lineSpacing(4)
             } else if !prompted {
                 permissionCard
+            } else if ingesting && graph.today == nil {
+                gettingThisWeek
+            } else if let today = graph.today {
+                todayCards(today)
+                if ingesting {
+                    Text("Updating this week…")
+                        .font(AppFont.caption)
+                        .foregroundStyle(Color.mute)
+                }
             } else {
-                Text("Latest steps, glucose, and alerts will live here. Log a reading with + — not a fifth tab.")
-                    .font(AppFont.body)
+                gettingThisWeek
+            }
+
+            if let syncNote {
+                Text(syncNote)
+                    .font(AppFont.caption)
                     .foregroundStyle(Color.mute)
-                    .lineSpacing(4)
             }
 
             if let errorText {
                 Text(errorText)
                     .font(AppFont.captionMedium)
                     .foregroundStyle(Color.alert)
+                Button("Try again", action: ingestWeek)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.flare)
             }
 
             Spacer()
@@ -105,6 +122,12 @@ private struct TodayView: View {
         .background(Color.canvas.ignoresSafeArea())
         .onAppear {
             prompted = health.hasPrompted
+            if let id = session.user?.id {
+                graph.refreshToday(patientId: id)
+            }
+            if prompted, !isCaregiver, HealthKitService.isAvailable {
+                ingestWeek()
+            }
         }
     }
 
@@ -130,7 +153,7 @@ private struct TodayView: View {
                 .lineSpacing(4)
 
             Button(action: allowHealth) {
-                Text(busy ? "Working…" : "Allow Health")
+                Text(ingesting ? "Working…" : "Allow Health")
                     .font(AppFont.button)
                     .foregroundStyle(Color.ink)
                     .frame(maxWidth: .infinity)
@@ -138,7 +161,62 @@ private struct TodayView: View {
                     .background(Color.flare)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
-            .disabled(busy)
+            .disabled(ingesting)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.card)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.hairline, lineWidth: 1)
+        )
+    }
+
+    private var gettingThisWeek: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Getting this week…")
+                .font(AppFont.cardTitle)
+                .foregroundStyle(Color.ink)
+                .tracking(AppTracking.section)
+            Text("Reading Health on this iPhone. Simulator days are often 0.")
+                .font(AppFont.body)
+                .foregroundStyle(Color.mute)
+                .lineSpacing(4)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.card)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.hairline, lineWidth: 1)
+        )
+    }
+
+    private func todayCards(_ today: TodayMetrics) -> some View {
+        VStack(spacing: 12) {
+            metricCard(title: "Steps", value: "\(today.steps)")
+            metricCard(title: "Exercise", value: "\(today.durationMinutes)", unit: "min")
+        }
+    }
+
+    private func metricCard(title: String, value: String, unit: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(AppFont.label)
+                .foregroundStyle(Color.mute)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(value)
+                    .font(AppFont.metric)
+                    .foregroundStyle(Color.ink)
+                    .tracking(AppTracking.metric)
+                if let unit {
+                    Text(unit)
+                        .font(AppFont.unit)
+                        .foregroundStyle(Color.mute)
+                }
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -152,15 +230,44 @@ private struct TodayView: View {
 
     private func allowHealth() {
         errorText = nil
-        busy = true
+        ingesting = true
         Task {
-            defer { busy = false }
             do {
                 try await health.requestAccess()
                 prompted = health.hasPrompted
+                ingestWeek()
+            } catch {
+                ingesting = false
+                errorText = error.localizedDescription
+                Log.health("permission failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func ingestWeek() {
+        guard let user = session.user else { return }
+        errorText = nil
+        syncNote = nil
+        ingesting = true
+        Task {
+            do {
+                let synced = try await WeekIngest.run(
+                    patientId: user.id,
+                    displayName: user.displayName,
+                    health: health,
+                    graph: graph,
+                    activity: ActivityService(client: session.client())
+                )
+                if synced {
+                    syncNote = "Week is on the phone and sent to the API."
+                } else {
+                    syncNote = "Week is on the phone. Couldn’t reach the server — we’ll retry next time."
+                }
             } catch {
                 errorText = error.localizedDescription
+                Log.health("ingest failed: \(error.localizedDescription)")
             }
+            ingesting = false
         }
     }
 }

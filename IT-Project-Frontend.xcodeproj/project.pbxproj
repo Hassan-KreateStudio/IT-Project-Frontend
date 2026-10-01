@@ -25,6 +25,10 @@
 		92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */; };
 		8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */; };
 		C3A1TAB01MAIN01B01 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A1TAB01MAIN01F01 /* MainTabView.swift */; };
+		A1F0LOG01SHARED01B01 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0LOG01SHARED01F01 /* Log.swift */; };
+		A1F0GRAPH01MODEL01B01 /* GraphModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0GRAPH01MODEL01F01 /* GraphModels.swift */; };
+		A1F0GRAPH01STORE01B01 /* GraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0GRAPH01STORE01F01 /* GraphStore.swift */; };
+		A1F0GRAPH01INGESTB01 /* WeekIngest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0GRAPH01INGESTF01 /* WeekIngest.swift */; };
 		A1F0B011C0A14B0E8E2C1B02 /* BricolageGrotesque-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */; };
 		A1F0B011C0A14B0E8E2C1B03 /* BricolageGrotesque-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */; };
 		A1F0B011C0A14B0E8E2C1B05 /* Outfit-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */; };
@@ -53,6 +57,10 @@
 		7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAuthView.swift; sourceTree = "<group>"; };
 		2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePlaceholderView.swift; sourceTree = "<group>"; };
 		C3A1TAB01MAIN01F01 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A1F0LOG01SHARED01F01 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		A1F0GRAPH01MODEL01F01 /* GraphModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphModels.swift; sourceTree = "<group>"; };
+		A1F0GRAPH01STORE01F01 /* GraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStore.swift; sourceTree = "<group>"; };
+		A1F0GRAPH01INGESTF01 /* WeekIngest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekIngest.swift; sourceTree = "<group>"; };
 		C3A1HK01ENTITLEMENTS /* ITProject.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ITProject.entitlements; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A02 /* BricolageGrotesque-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-ExtraBold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A03 /* BricolageGrotesque-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "BricolageGrotesque-SemiBold.otf"; sourceTree = "<group>"; };
@@ -73,6 +81,7 @@
 				B8308A30BE314D92B3C15ACC /* Auth */,
 				8A5ED05EEF2843FEBEBA9D5D /* Caregiver */,
 				AF8AA1E4D4EA492DB3B9971C /* Activity */,
+				A1F0GRAPH01GROUP01G01 /* Graph */,
 				EF480E0449E349769DF5B9B1 /* HealthKit */,
 				C49CBEA63E9C4B6193BE1B93 /* Glucose */,
 				6C5AE88B9E754F56AF582FD5 /* Analysis */,
@@ -160,6 +169,16 @@
 			path = Activity;
 			sourceTree = "<group>";
 		};
+		A1F0GRAPH01GROUP01G01 /* Graph */ = {
+			isa = PBXGroup;
+			children = (
+				A1F0GRAPH01MODEL01F01 /* GraphModels.swift */,
+				A1F0GRAPH01STORE01F01 /* GraphStore.swift */,
+				A1F0GRAPH01INGESTF01 /* WeekIngest.swift */,
+			);
+			path = Graph;
+			sourceTree = "<group>";
+		};
 		EF480E0449E349769DF5B9B1 /* HealthKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -188,6 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				CE49974B11634931A701A248 /* Models.swift */,
+				A1F0LOG01SHARED01F01 /* Log.swift */,
 				5400E78ACEF143CC8D5EFD64 /* Theme.swift */,
 				B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */,
 			);
@@ -289,6 +309,10 @@
 				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,
 				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,
 				E836F6B174024EFFA414FDDD /* Models.swift in Sources */,
+				A1F0LOG01SHARED01B01 /* Log.swift in Sources */,
+				A1F0GRAPH01MODEL01B01 /* GraphModels.swift in Sources */,
+				A1F0GRAPH01STORE01B01 /* GraphStore.swift in Sources */,
+				A1F0GRAPH01INGESTB01 /* WeekIngest.swift in Sources */,
 				2AE0AC29DC214F22B10ADAB6 /* Theme.swift in Sources */,
 				B8A1C011C0A14B0E8E2C1D02 /* BrandMark.swift in Sources */,
 				05CCC3720E4548F693651C97 /* SessionStore.swift in Sources */,
