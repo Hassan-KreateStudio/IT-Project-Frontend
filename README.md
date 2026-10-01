@@ -14,6 +14,7 @@ iPhone SwiftUI app for the IT Project backend. The Apple Watch writes HealthKit 
 - `Auth/` — register, login, me
 - `Caregiver/` — link + monitored patients
 - `Activity/` — `syncActivity`
+- `Intelligence/` — on-device model on the local week graph
 - `HealthKit/` — phone samples → `sourceId` payloads
 - `Glucose/` — `addGlucose`
 - `Analysis/` — dashboard
