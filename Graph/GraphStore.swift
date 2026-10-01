@@ -4,6 +4,7 @@ import SwiftUI
 
 struct TodayMetrics: Equatable {
     var steps: Int
+    var heartRate: Int?
     var durationMinutes: Int
     var intensity: String
     var sedentaryMinutes: Int
@@ -85,11 +86,12 @@ final class GraphStore: ObservableObject {
         if let activity = day?.activity {
             today = TodayMetrics(
                 steps: activity.stepCount,
+                heartRate: activity.heartRate,
                 durationMinutes: activity.durationMinutes,
                 intensity: activity.intensity,
                 sedentaryMinutes: activity.sedentaryMinutes
             )
-            Log.graph("today \(todayId) steps=\(activity.stepCount) duration=\(activity.durationMinutes)")
+            Log.graph("today \(todayId) steps=\(activity.stepCount) hr=\(activity.heartRate.map(String.init) ?? "—") duration=\(activity.durationMinutes) intensity=\(activity.intensity) sedentary=\(activity.sedentaryMinutes)")
         } else {
             today = nil
             Log.graph("no today node yet")

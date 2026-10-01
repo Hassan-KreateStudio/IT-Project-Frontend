@@ -13,7 +13,7 @@ Phone derives these, then `syncActivity`. Backend stores the fields as-is.
 1. Sign in. Today shows **Allow Health**. Do not pull Health yet.
 2. After grant: last **7 days** of activity into a **local graph** (`Person → Day → Activity`). SwiftData/SQLite with nodes and edges — not Neo4j on device, not GraphQLite. Then `syncActivity` for those days.
 3. **Required glucose** for today. No Skip. Sheet until there is a mg/dL. Attach `Day → Glucose` and `addGlucose`.
-4. **Today** — this calendar day only: steps, exercise minutes, the reading, plus **todayCopy** from Intelligence (on-device model on the local graph). Do **not** show backend alert codes.
+4. **Today** — this calendar day’s full activity node (same set Trends will chart): steps, heart rate, duration, intensity, sedentary. Glucose and `todayCopy` come later. Do **not** show backend alert codes.
 5. **Trends** — vertical swipe. One card = one graph (7-day steps, exercise time, sedentary). Card color = tones from Intelligence. Glucose is **one point on today**, not a fake 7-day line. After those cards, a **General** card from Intelligence.
 
 See `Intelligence/README.md`. Official query-time alerts can still exist on Render for the caregiver. The patient’s first screens do not use them.

@@ -69,56 +69,56 @@ private struct TodayView: View {
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(isCaregiver ? "Their day" : greeting)
-                .font(AppFont.largeTitle)
-                .foregroundStyle(Color.ink)
-                .tracking(AppTracking.largeTitle)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(isCaregiver ? "Their day" : greeting)
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(Color.ink)
+                    .tracking(AppTracking.largeTitle)
 
-            if isCaregiver {
-                Text("Pick someone in People. This tab will show their latest steps and glucose.")
-                    .font(AppFont.body)
-                    .foregroundStyle(Color.mute)
-                    .lineSpacing(4)
-            } else if !HealthKitService.isAvailable {
-                Text("Health isn’t on this device, so Watch steps can’t land here. You can still log glucose later.")
-                    .font(AppFont.body)
-                    .foregroundStyle(Color.mute)
-                    .lineSpacing(4)
-            } else if !prompted {
-                permissionCard
-            } else if ingesting && graph.today == nil {
-                gettingThisWeek
-            } else if let today = graph.today {
-                todayCards(today)
-                if ingesting {
-                    Text("Updating this week…")
+                if isCaregiver {
+                    Text("Pick someone in People. This tab will show their latest steps and glucose.")
+                        .font(AppFont.body)
+                        .foregroundStyle(Color.mute)
+                        .lineSpacing(4)
+                } else if !HealthKitService.isAvailable {
+                    Text("Health isn’t on this device, so Watch steps can’t land here. You can still log glucose later.")
+                        .font(AppFont.body)
+                        .foregroundStyle(Color.mute)
+                        .lineSpacing(4)
+                } else if !prompted {
+                    permissionCard
+                } else if ingesting && graph.today == nil {
+                    gettingThisWeek
+                } else if let today = graph.today {
+                    todayCards(today)
+                    if ingesting {
+                        Text("Updating this week…")
+                            .font(AppFont.caption)
+                            .foregroundStyle(Color.mute)
+                    }
+                } else {
+                    gettingThisWeek
+                }
+
+                if let syncNote {
+                    Text(syncNote)
                         .font(AppFont.caption)
                         .foregroundStyle(Color.mute)
                 }
-            } else {
-                gettingThisWeek
-            }
 
-            if let syncNote {
-                Text(syncNote)
-                    .font(AppFont.caption)
-                    .foregroundStyle(Color.mute)
+                if let errorText {
+                    Text(errorText)
+                        .font(AppFont.captionMedium)
+                        .foregroundStyle(Color.alert)
+                    Button("Try again", action: ingestWeek)
+                        .font(AppFont.bodyMedium)
+                        .foregroundStyle(Color.flare)
+                }
             }
-
-            if let errorText {
-                Text(errorText)
-                    .font(AppFont.captionMedium)
-                    .foregroundStyle(Color.alert)
-                Button("Try again", action: ingestWeek)
-                    .font(AppFont.bodyMedium)
-                    .foregroundStyle(Color.flare)
-            }
-
-            Spacer()
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.canvas.ignoresSafeArea())
         .onAppear {
             prompted = health.hasPrompted
@@ -197,7 +197,23 @@ private struct TodayView: View {
     private func todayCards(_ today: TodayMetrics) -> some View {
         VStack(spacing: 12) {
             metricCard(title: "Steps", value: "\(today.steps)")
-            metricCard(title: "Exercise", value: "\(today.durationMinutes)", unit: "min")
+            metricCard(
+                title: "Heart rate",
+                value: today.heartRate.map(String.init) ?? "—",
+                unit: today.heartRate == nil ? nil : "bpm"
+            )
+            metricCard(title: "Duration", value: "\(today.durationMinutes)", unit: "min")
+            metricCard(title: "Intensity", value: intensityLabel(today.intensity))
+            metricCard(title: "Sedentary", value: "\(today.sedentaryMinutes)", unit: "min")
+        }
+    }
+
+    private func intensityLabel(_ raw: String) -> String {
+        switch raw {
+        case "LIGHT": return "Light"
+        case "MODERATE": return "Moderate"
+        case "VIGOROUS": return "Vigorous"
+        default: return raw
         }
     }
 
