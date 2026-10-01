@@ -14,6 +14,7 @@ struct TodayMetrics: Equatable {
 final class GraphStore: ObservableObject {
     let container: ModelContainer
     @Published private(set) var today: TodayMetrics?
+    @Published var catchingUp = false
 
     private var context: ModelContext { container.mainContext }
 

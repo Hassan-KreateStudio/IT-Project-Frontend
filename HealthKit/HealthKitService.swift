@@ -45,33 +45,35 @@ struct HealthKitService {
         Log.health("permission sheet finished (prompted=true even if samples are empty)")
     }
 
-    func weekActivity(now: Date = Date(), calendar: Calendar = .current) async throws -> [HealthDay] {
+    func activity(from start: Date, to now: Date = Date(), calendar: Calendar = .current) async throws -> [HealthDay] {
+        let fromDay = calendar.startOfDay(for: start)
         let today = calendar.startOfDay(for: now)
-        guard let start = calendar.date(byAdding: .day, value: -6, to: today),
+        guard fromDay <= today,
               let end = calendar.date(byAdding: .day, value: 1, to: today)
         else {
             return []
         }
-        Log.health("query \(HealthDay.sourceId(for: start)) .. \(HealthDay.sourceId(for: today))")
+        let dayCount = (calendar.dateComponents([.day], from: fromDay, to: today).day ?? 0) + 1
+        Log.health("query \(HealthDay.sourceId(for: fromDay)) .. \(HealthDay.sourceId(for: today)) (\(dayCount) days)")
 
-        let steps = try await dailyTotals(identifier: .stepCount, options: .cumulativeSum, unit: .count(), start: start, end: end)
+        let steps = try await dailyTotals(identifier: .stepCount, options: .cumulativeSum, unit: .count(), start: fromDay, end: end)
         let exercise = try await dailyTotals(
             identifier: .appleExerciseTime,
             options: .cumulativeSum,
             unit: .minute(),
-            start: start,
+            start: fromDay,
             end: end
         )
         let heart = try await dailyTotals(
             identifier: .heartRate,
             options: .discreteAverage,
             unit: HKUnit.count().unitDivided(by: .minute()),
-            start: start,
+            start: fromDay,
             end: end
         )
 
-        return (0 ..< 7).compactMap { offset -> HealthDay? in
-            guard let day = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
+        return (0 ..< dayCount).compactMap { offset -> HealthDay? in
+            guard let day = calendar.date(byAdding: .day, value: offset, to: fromDay) else { return nil }
             let stepCount = Int((steps[day] ?? 0).rounded())
             let durationMinutes = Int((exercise[day] ?? 0).rounded())
             let heartRate: Int? = heart[day].map { Int($0.rounded()) }

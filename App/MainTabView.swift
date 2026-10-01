@@ -6,7 +6,10 @@ enum AppTab: Hashable {
 
 struct MainTabView: View {
     @EnvironmentObject private var session: SessionStore
+    @EnvironmentObject private var graph: GraphStore
+    @Environment(\.scenePhase) private var scenePhase
     @State private var tab: AppTab = .today
+    @State private var health = HealthKitService()
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
 
@@ -31,29 +34,58 @@ struct MainTabView: View {
         .tint(Color.flare)
         .onAppear {
             if isCaregiver { tab = .people }
-            let item = UITabBarItem.appearance()
-            item.setTitleTextAttributes(
-                [
-                    .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
-                    .foregroundColor: UIColor(Color.mute)
-                ],
-                for: .normal
-            )
-            item.setTitleTextAttributes(
-                [
-                    .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
-                    .foregroundColor: UIColor(Color.ink)
-                ],
-                for: .selected
-            )
-            let bar = UITabBarAppearance()
-            bar.configureWithOpaqueBackground()
-            bar.backgroundColor = UIColor(Color.canvas)
-            bar.shadowColor = UIColor(Color.hairline)
-            UITabBar.appearance().standardAppearance = bar
-            UITabBar.appearance().scrollEdgeAppearance = bar
+            styleTabBar()
+            catchUpHealth()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { catchUpHealth() }
         }
         .preferredColorScheme(.light)
+    }
+
+    private func catchUpHealth() {
+        guard !isCaregiver,
+              let user = session.user,
+              HealthKitService.isAvailable,
+              health.hasPrompted
+        else { return }
+        Task {
+            do {
+                _ = try await WeekIngest.run(
+                    patientId: user.id,
+                    displayName: user.displayName,
+                    health: health,
+                    graph: graph,
+                    activity: ActivityService(client: session.client())
+                )
+            } catch {
+                Log.health("catch-up failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func styleTabBar() {
+        let item = UITabBarItem.appearance()
+        item.setTitleTextAttributes(
+            [
+                .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
+                .foregroundColor: UIColor(Color.mute)
+            ],
+            for: .normal
+        )
+        item.setTitleTextAttributes(
+            [
+                .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
+                .foregroundColor: UIColor(Color.ink)
+            ],
+            for: .selected
+        )
+        let bar = UITabBarAppearance()
+        bar.configureWithOpaqueBackground()
+        bar.backgroundColor = UIColor(Color.canvas)
+        bar.shadowColor = UIColor(Color.hairline)
+        UITabBar.appearance().standardAppearance = bar
+        UITabBar.appearance().scrollEdgeAppearance = bar
     }
 }
 
@@ -92,7 +124,7 @@ private struct TodayView: View {
                     gettingThisWeek
                 } else if let today = graph.today {
                     todayCards(today)
-                    if ingesting {
+                    if ingesting || graph.catchingUp {
                         Text("Updating this week…")
                             .font(AppFont.caption)
                             .foregroundStyle(Color.mute)
@@ -124,9 +156,6 @@ private struct TodayView: View {
             prompted = health.hasPrompted
             if let id = session.user?.id {
                 graph.refreshToday(patientId: id)
-            }
-            if prompted, !isCaregiver, HealthKitService.isAvailable {
-                ingestWeek()
             }
         }
     }
