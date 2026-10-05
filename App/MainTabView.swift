@@ -326,19 +326,6 @@ private struct TrendsView: View {
     }
 }
 
-private struct PeopleView: View {
-    @EnvironmentObject private var session: SessionStore
-
-    var body: some View {
-        tabScreen(
-            title: "People",
-            body: session.user?.role == "CAREGIVER"
-                ? "Patients who added this email. Empty until they link you."
-                : "Add a caregiver with their email. They sign in as caregiver with that same address."
-        )
-    }
-}
-
 private struct YouView: View {
     @EnvironmentObject private var session: SessionStore
 

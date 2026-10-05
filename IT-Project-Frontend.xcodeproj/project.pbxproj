@@ -12,6 +12,7 @@
 		652BB273757E4D1BB1571694 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F96BBD36AF047A9A75B8536 /* Client.swift */; };
 		5A49F8FC935C4D879C174FD0 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3802A28D030949068A973A22 /* AuthService.swift */; };
 		4F51F1FE33D143A58E2DEE62 /* CaregiverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */; };
+		A1F0PEOPLE01VIEW01B01 /* PeopleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0PEOPLE01VIEW01F01 /* PeopleView.swift */; };
 		0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA67845FC704505A765B22E /* ActivityService.swift */; };
 		DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */; };
 		7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162AC86725A34C50A3F88B4A /* GlucoseService.swift */; };
@@ -45,6 +46,7 @@
 		6F96BBD36AF047A9A75B8536 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		3802A28D030949068A973A22 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverService.swift; sourceTree = "<group>"; };
+		A1F0PEOPLE01VIEW01F01 /* PeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleView.swift; sourceTree = "<group>"; };
 		6EA67845FC704505A765B22E /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 		F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		162AC86725A34C50A3F88B4A /* GlucoseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseService.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				E0D250DEB92A4338A35AD1E3 /* CaregiverService.swift */,
+				A1F0PEOPLE01VIEW01F01 /* PeopleView.swift */,
 			);
 			path = Caregiver;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				652BB273757E4D1BB1571694 /* Client.swift in Sources */,
 				5A49F8FC935C4D879C174FD0 /* AuthService.swift in Sources */,
 				4F51F1FE33D143A58E2DEE62 /* CaregiverService.swift in Sources */,
+				A1F0PEOPLE01VIEW01B01 /* PeopleView.swift in Sources */,
 				0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */,
 				DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */,
 				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,

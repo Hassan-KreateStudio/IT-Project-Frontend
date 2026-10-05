@@ -52,6 +52,8 @@ struct GraphQLError: Decodable, LocalizedError {
         case "email_failed": return "Couldn’t send the email. Try again in a moment."
         case "otp_unavailable": return "Sign-in is down for a minute. Try again shortly."
         case "unauthorized": return "Sign in again."
+        case "not_found": return "No caregiver account with that email yet. They sign in as caregiver first — then add them again."
+        case "forbidden": return "Only a patient can add a caregiver."
         default: return message
         }
     }
