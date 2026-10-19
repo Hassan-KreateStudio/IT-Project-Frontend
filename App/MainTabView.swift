@@ -36,7 +36,6 @@ struct MainTabView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { catchUpHealth() }
         }
-        .preferredColorScheme(.light)
     }
 
     private func catchUpHealth() {
@@ -74,7 +73,7 @@ struct MainTabView: View {
         item.setTitleTextAttributes(
             [
                 .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
-                .foregroundColor: UIColor(Color.ink)
+                .foregroundColor: UIColor(Color.flare)
             ],
             for: .selected
         )
@@ -87,82 +86,65 @@ struct MainTabView: View {
     }
 }
 
+private enum SummaryHero: Int, CaseIterable {
+    case steps, heartRate, duration, intensity, sedentary, glucose
+}
+
 private struct SummaryView: View {
     @EnvironmentObject private var session: SessionStore
     @EnvironmentObject private var graph: GraphStore
     @State private var health = HealthKitService()
     @State private var prompted = false
     @State private var ingesting = false
-    @State private var syncNote: String?
     @State private var errorText: String?
+    @State private var hero: SummaryHero = .steps
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(isCaregiver ? "Their day" : greeting)
-                    .font(AppFont.largeTitle)
-                    .foregroundStyle(Color.ink)
-                    .tracking(AppTracking.largeTitle)
-
-                if isCaregiver {
-                    Text("Pick someone in Sharing. This tab will show their latest steps and glucose.")
-                        .font(AppFont.body)
-                        .foregroundStyle(Color.mute)
-                        .lineSpacing(4)
-                } else if !HealthKitService.isAvailable {
-                    Text("Health isn’t on this device, so Watch steps can’t land here. You can still log glucose later.")
-                        .font(AppFont.body)
-                        .foregroundStyle(Color.mute)
-                        .lineSpacing(4)
-                } else if !prompted {
-                    permissionCard
-                } else if ingesting && graph.today == nil {
-                    gettingThisWeek
-                } else if let today = graph.today {
-                    todayCards(today)
-                    if ingesting || graph.catchingUp {
-                        Text("Updating this week…")
-                            .font(AppFont.caption)
-                            .foregroundStyle(Color.mute)
-                    }
-                } else {
-                    gettingThisWeek
-                }
-
-                if let syncNote {
-                    Text(syncNote)
-                        .font(AppFont.caption)
-                        .foregroundStyle(Color.mute)
-                }
-
-                if let errorText {
-                    Text(errorText)
-                        .font(AppFont.captionMedium)
-                        .foregroundStyle(Color.alert)
-                    Button("Try again", action: ingestWeek)
-                        .font(AppFont.bodyMedium)
-                        .foregroundStyle(Color.flare)
-                }
-
-                if !isCaregiver {
-                    Text("Week")
-                        .font(AppFont.section)
-                        .foregroundStyle(Color.ink)
-                        .tracking(AppTracking.section)
-                        .padding(.top, 8)
-
-                    Text("Query-time rollups from dashboard. Not a stored predictor.")
-                        .font(AppFont.body)
-                        .foregroundStyle(Color.mute)
-                        .lineSpacing(4)
-                }
+        Group {
+            if isCaregiver {
+                messagePoster(
+                    fill: Color.ink,
+                    scheme: .dark,
+                    ink: Color.card,
+                    title: "Pick",
+                    unit: nil,
+                    leftover: "Sharing. Then this tab is their day."
+                )
+            } else if !HealthKitService.isAvailable {
+                messagePoster(
+                    fill: Color.ink,
+                    scheme: .dark,
+                    ink: Color.card,
+                    title: "Off",
+                    unit: nil,
+                    leftover: "Health isn’t on this device."
+                )
+            } else if !prompted {
+                allowPoster
+            } else if ingesting && graph.today == nil {
+                messagePoster(
+                    fill: Color.flare,
+                    scheme: .light,
+                    ink: Color.ink,
+                    title: "Wait",
+                    unit: nil,
+                    leftover: "Reading Health on this iPhone."
+                )
+            } else if let today = graph.today {
+                metricsPoster(today)
+            } else {
+                messagePoster(
+                    fill: Color.flare,
+                    scheme: .light,
+                    ink: Color.ink,
+                    title: "Wait",
+                    unit: nil,
+                    leftover: "Reading Health on this iPhone."
+                )
             }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .background(Color.canvas.ignoresSafeArea())
         .onAppear {
             prompted = health.hasPrompted
             if let id = session.user?.id {
@@ -171,81 +153,236 @@ private struct SummaryView: View {
         }
     }
 
-    private var greeting: String {
-        let name = session.user?.displayName.split(separator: " ").first.map(String.init) ?? "there"
-        return "Hi, \(name)"
+    private var weekday: String {
+        Date.now.formatted(.dateTime.weekday(.wide))
     }
 
-    private var permissionCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: "applewatch")
-                .font(.system(size: 22, weight: .regular))
-                .foregroundStyle(Color.ink)
-
-            Text("Allow Health")
-                .font(AppFont.cardTitle)
-                .foregroundStyle(Color.ink)
-                .tracking(AppTracking.section)
-
-            Text("Your Watch writes to Health on this iPhone. Graph Health only reads it — steps, heart rate, and movement — so Summary can fill in.")
-                .font(AppFont.body)
-                .foregroundStyle(Color.mute)
-                .lineSpacing(4)
-
-            Button(action: allowHealth) {
-                Text(ingesting ? "Working…" : "Allow Health")
-                    .font(AppFont.button)
+    private var allowPoster: some View {
+        DippedStage(fill: Color.flare, scheme: .light) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(weekday)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.ink)
+                Spacer()
+                Text("Allow")
+                    .font(AppFont.poster)
+                    .foregroundStyle(Color.ink)
+                    .tracking(AppTracking.poster)
+                    .minimumScaleFactor(0.3)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                Text("Health")
+                    .font(AppFont.unit)
                     .foregroundStyle(Color.ink)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.flare)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.top, 4)
+                Spacer()
+                Text("Watch writes here. We only read steps, heart, and movement.")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.ink)
+                    .lineSpacing(4)
+                    .padding(.bottom, 16)
+                if let errorText {
+                    Text(errorText)
+                        .font(AppFont.captionMedium)
+                        .foregroundStyle(Color.ink)
+                        .padding(.bottom, 8)
+                }
+                Button(action: allowHealth) {
+                    Text(ingesting ? "Working…" : "Allow Health")
+                        .font(AppFont.button)
+                        .foregroundStyle(Color.card)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.ink)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .disabled(ingesting)
             }
-            .disabled(ingesting)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.hairline, lineWidth: 1)
-        )
     }
 
-    private var gettingThisWeek: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Getting this week…")
-                .font(AppFont.cardTitle)
-                .foregroundStyle(Color.ink)
-                .tracking(AppTracking.section)
-            Text("Reading Health on this iPhone. Simulator days are often 0.")
-                .font(AppFont.body)
-                .foregroundStyle(Color.mute)
-                .lineSpacing(4)
+    private func metricsPoster(_ today: TodayMetrics) -> some View {
+        let page = page(for: today)
+        return Button(action: cycle) {
+            DippedStage(fill: page.fill, scheme: page.scheme) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(weekday)
+                        .font(AppFont.bodyMedium)
+                        .foregroundStyle(page.ink)
+                    Spacer()
+                    Text(page.value)
+                        .font(AppFont.poster)
+                        .foregroundStyle(page.number)
+                        .tracking(AppTracking.poster)
+                        .minimumScaleFactor(0.25)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                    if let unit = page.unit {
+                        Text(unit)
+                            .font(AppFont.unit)
+                            .foregroundStyle(page.ink)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 4)
+                    }
+                    Spacer()
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(page.leftover)
+                            .font(AppFont.body)
+                            .foregroundStyle(page.ink)
+                        if ingesting || graph.catchingUp {
+                            Text("Updating…")
+                                .font(AppFont.caption)
+                                .foregroundStyle(page.ink)
+                        }
+                        if let errorText {
+                            Text(errorText)
+                                .font(AppFont.captionMedium)
+                                .foregroundStyle(page.scheme == .dark ? Color.alert : Color.ink)
+                            Text("Try again")
+                                .font(AppFont.bodyMedium)
+                                .foregroundStyle(page.ink)
+                        }
+                    }
+                }
+            }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.hairline, lineWidth: 1)
-        )
+        .buttonStyle(.plain)
+        .accessibilityLabel(page.accessibility)
+        .accessibilityHint("Shows the next reading")
     }
 
-    private func todayCards(_ today: TodayMetrics) -> some View {
-        VStack(spacing: 12) {
-            metricCard(title: "Steps", value: "\(today.steps)")
-            metricCard(
-                title: "Heart rate",
-                value: today.heartRate.map(String.init) ?? "—",
-                unit: today.heartRate == nil ? nil : "bpm"
+    private func messagePoster(
+        fill: Color,
+        scheme: ColorScheme,
+        ink: Color,
+        title: String,
+        unit: String?,
+        leftover: String
+    ) -> some View {
+        DippedStage(fill: fill, scheme: scheme) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(weekday)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(ink)
+                Spacer()
+                Text(title)
+                    .font(AppFont.poster)
+                    .foregroundStyle(ink)
+                    .tracking(AppTracking.poster)
+                    .minimumScaleFactor(0.3)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                if let unit {
+                    Text(unit)
+                        .font(AppFont.unit)
+                        .foregroundStyle(ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 4)
+                }
+                Spacer()
+                Text(leftover)
+                    .font(AppFont.body)
+                    .foregroundStyle(ink)
+                    .lineSpacing(4)
+            }
+        }
+    }
+
+    private struct HeroPage {
+        var fill: Color
+        var scheme: ColorScheme
+        var ink: Color
+        var number: Color
+        var value: String
+        var unit: String?
+        var leftover: String
+        var accessibility: String
+    }
+
+    private func page(for today: TodayMetrics) -> HeroPage {
+        let steps = today.steps.formatted()
+        let glucoseNote = "glucose not in yet"
+        switch hero {
+        case .steps:
+            return HeroPage(
+                fill: Color.flare,
+                scheme: .light,
+                ink: Color.ink,
+                number: Color.ink,
+                value: steps,
+                unit: "steps",
+                leftover: glucoseNote,
+                accessibility: "\(today.steps) steps"
             )
-            metricCard(title: "Duration", value: "\(today.durationMinutes)", unit: "min")
-            metricCard(title: "Intensity", value: intensityLabel(today.intensity))
-            metricCard(title: "Sedentary", value: "\(today.sedentaryMinutes)", unit: "min")
+        case .heartRate:
+            return HeroPage(
+                fill: Color.ink,
+                scheme: .dark,
+                ink: Color.card,
+                number: Color.card,
+                value: today.heartRate.map(String.init) ?? "—",
+                unit: "bpm",
+                leftover: "\(steps) steps",
+                accessibility: today.heartRate.map { "\($0) beats per minute" } ?? "No heart rate"
+            )
+        case .duration:
+            return HeroPage(
+                fill: Color.acid,
+                scheme: .light,
+                ink: Color.ink,
+                number: Color.ink,
+                value: "\(today.durationMinutes)",
+                unit: "min",
+                leftover: "\(steps) steps",
+                accessibility: "\(today.durationMinutes) minutes"
+            )
+        case .intensity:
+            return HeroPage(
+                fill: Color.night,
+                scheme: .dark,
+                ink: Color.card,
+                number: Color.acid,
+                value: intensityLabel(today.intensity),
+                unit: "intensity",
+                leftover: "\(steps) steps",
+                accessibility: "Intensity \(intensityLabel(today.intensity))"
+            )
+        case .sedentary:
+            return HeroPage(
+                fill: Color.ink,
+                scheme: .dark,
+                ink: Color.card,
+                number: Color.warn,
+                value: "\(today.sedentaryMinutes)",
+                unit: "min sitting",
+                leftover: "\(steps) steps",
+                accessibility: "\(today.sedentaryMinutes) sedentary minutes"
+            )
+        case .glucose:
+            return HeroPage(
+                fill: Color.ink,
+                scheme: .dark,
+                ink: Color.card,
+                number: Color.flare,
+                value: "—",
+                unit: "mg/dL",
+                leftover: "\(steps) steps",
+                accessibility: "Glucose not in yet"
+            )
         }
+    }
+
+    private func cycle() {
+        if errorText != nil {
+            ingestWeek()
+            return
+        }
+        let all = SummaryHero.allCases
+        hero = all[(hero.rawValue + 1) % all.count]
     }
 
     private func intensityLabel(_ raw: String) -> String {
@@ -255,33 +392,6 @@ private struct SummaryView: View {
         case "VIGOROUS": return "Vigorous"
         default: return raw
         }
-    }
-
-    private func metricCard(title: String, value: String, unit: String? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(AppFont.label)
-                .foregroundStyle(Color.mute)
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(value)
-                    .font(AppFont.metric)
-                    .foregroundStyle(Color.ink)
-                    .tracking(AppTracking.metric)
-                if let unit {
-                    Text(unit)
-                        .font(AppFont.unit)
-                        .foregroundStyle(Color.mute)
-                }
-            }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.hairline, lineWidth: 1)
-        )
     }
 
     private func allowHealth() {
@@ -303,11 +413,10 @@ private struct SummaryView: View {
     private func ingestWeek() {
         guard let user = session.user else { return }
         errorText = nil
-        syncNote = nil
         ingesting = true
         Task {
             do {
-                let synced = try await WeekIngest.run(
+                _ = try await WeekIngest.run(
                     patientId: user.id,
                     displayName: user.displayName,
                     health: health,
@@ -315,11 +424,6 @@ private struct SummaryView: View {
                     activity: ActivityService(client: session.client()),
                     profile: ProfileService(client: session.client())
                 )
-                if synced {
-                    syncNote = "Week is on the phone and sent to the API."
-                } else {
-                    syncNote = "Week is on the phone. Couldn’t reach the server — we’ll retry next time."
-                }
             } catch {
                 errorText = error.localizedDescription
                 Log.health("ingest failed: \(error.localizedDescription)")
@@ -332,40 +436,41 @@ private struct SummaryView: View {
 private struct YouView: View {
     @EnvironmentObject private var session: SessionStore
 
+    private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
+    private var name: String {
+        let raw = session.user?.displayName.firstName ?? ""
+        return raw.isEmpty ? "You" : raw
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("You")
-                .font(AppFont.largeTitle)
-                .foregroundStyle(Color.ink)
-                .tracking(AppTracking.largeTitle)
-
-            Text(session.user?.displayName ?? "")
-                .font(AppFont.section)
-                .foregroundStyle(Color.ink)
-                .tracking(AppTracking.section)
-
-            Text(session.user?.email ?? "")
-                .font(AppFont.body)
-                .foregroundStyle(Color.mute)
-
-            Text(session.user?.role == "CAREGIVER" ? "Caregiver" : "Patient")
-                .font(AppFont.chip)
-                .foregroundStyle(Color.ink)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(session.user?.role == "CAREGIVER" ? Color.acid : Color.flare)
-                .clipShape(Capsule())
-
-            Button("Sign out") {
-                session.signOut()
+        DippedStage(fill: Color.ink, scheme: .dark) {
+            VStack(spacing: 12) {
+                Spacer()
+                Text(name)
+                    .font(AppFont.poster)
+                    .foregroundStyle(Color.card)
+                    .tracking(AppTracking.poster)
+                    .minimumScaleFactor(0.25)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                Text(session.user?.email ?? "")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                Text(isCaregiver ? "Caregiver" : "Patient")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.ink)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(isCaregiver ? Color.acid : Color.flare)
+                    .clipShape(Capsule())
+                Spacer()
+                Button("Sign out") {
+                    session.signOut()
+                }
+                .font(AppFont.bodyMedium)
+                .foregroundStyle(Color.card)
             }
-            .font(AppFont.bodyMedium)
-            .foregroundStyle(Color.flare)
-
-            Spacer()
+            .frame(maxWidth: .infinity)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color.canvas.ignoresSafeArea())
     }
 }

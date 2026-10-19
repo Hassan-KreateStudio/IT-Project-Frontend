@@ -28,6 +28,8 @@ extension Color {
 }
 
 enum AppFont {
+    static let poster = Font.custom("BricolageGrotesque-ExtraBold", size: 128)
+    static let slab = Font.custom("BricolageGrotesque-ExtraBold", size: 56)
     static let largeTitle = Font.custom("BricolageGrotesque-ExtraBold", size: 40)
     static let section = Font.custom("BricolageGrotesque-ExtraBold", size: 24)
     static let cardTitle = Font.custom("BricolageGrotesque-SemiBold", size: 22)
@@ -44,7 +46,35 @@ enum AppFont {
 }
 
 enum AppTracking {
+    static let poster: CGFloat = -3.0
+    static let slab: CGFloat = -1.6
     static let largeTitle: CGFloat = -0.8
     static let section: CGFloat = -0.4
     static let metric: CGFloat = -1.0
+}
+
+struct DippedStage<Content: View>: View {
+    var fill: Color
+    var scheme: ColorScheme = .light
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        ZStack {
+            fill.ignoresSafeArea(edges: .top)
+            content()
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(fill)
+        .preferredColorScheme(scheme)
+    }
+}
+
+extension String {
+    var firstName: String {
+        split(separator: " ").first.map(String.init) ?? self
+    }
 }

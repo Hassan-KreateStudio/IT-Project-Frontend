@@ -14,8 +14,6 @@ struct PeopleView: View {
                 PatientPeopleView()
             }
         }
-        .background(Color.canvas.ignoresSafeArea())
-        .preferredColorScheme(.light)
     }
 }
 
@@ -26,17 +24,14 @@ private struct PatientPeopleView: View {
     @State private var errorText: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        DippedStage(fill: Color.ink, scheme: .dark) {
+            VStack(spacing: 16) {
                 Text("Sharing")
-                    .font(AppFont.largeTitle)
-                    .foregroundStyle(Color.ink)
-                    .tracking(AppTracking.largeTitle)
-
-                Text("Family who watch your day. They add you with your email. You don’t invite anyone from here.")
-                    .font(AppFont.body)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.card)
+                Text("They add you. You don’t invite from here.")
+                    .font(AppFont.caption)
                     .foregroundStyle(Color.mute)
-                    .lineSpacing(4)
 
                 if let errorText {
                     Text(errorText)
@@ -48,20 +43,37 @@ private struct PatientPeopleView: View {
                 }
 
                 if busy && caregivers.isEmpty {
-                    Text("Loading…")
-                        .font(AppFont.caption)
-                        .foregroundStyle(Color.mute)
+                    Spacer()
+                    Text("Wait")
+                        .font(AppFont.poster)
+                        .foregroundStyle(Color.card)
+                        .tracking(AppTracking.poster)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
+                    Spacer()
                 } else if caregivers.isEmpty && errorText == nil {
+                    Spacer()
+                    Text("None")
+                        .font(AppFont.poster)
+                        .foregroundStyle(Color.card)
+                        .tracking(AppTracking.poster)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
                     Text("Nobody is watching yet.")
                         .font(AppFont.body)
                         .foregroundStyle(Color.mute)
-                }
-
-                ForEach(caregivers) { person in
-                    personCard(person, accent: Color.acid, role: "Caregiver")
+                    Spacer()
+                } else {
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(Array(caregivers.enumerated()), id: \.element.id) { index, person in
+                                personSlab(person, index: index)
+                            }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
                 }
             }
-            .padding(20)
         }
         .onAppear(perform: load)
     }
@@ -92,36 +104,54 @@ private struct CaregiverPeopleView: View {
     @State private var note: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        DippedStage(fill: Color.ink, scheme: .dark) {
+            VStack(spacing: 16) {
                 Text("Sharing")
-                    .font(AppFont.largeTitle)
-                    .foregroundStyle(Color.ink)
-                    .tracking(AppTracking.largeTitle)
-
-                Text("Add a patient with their email. They must already have a Graph Health patient account. They get a mail after the link succeeds.")
-                    .font(AppFont.body)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.card)
+                Text("They see this day.")
+                    .font(AppFont.caption)
                     .foregroundStyle(Color.mute)
-                    .lineSpacing(4)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Patient email")
-                        .font(AppFont.label)
-                        .foregroundStyle(Color.mute)
-                    TextField("", text: $email, prompt: Text("Email").foregroundStyle(Color.mute))
+                if busy && patients.isEmpty {
+                    Spacer()
+                    Text("Wait")
+                        .font(AppFont.poster)
+                        .foregroundStyle(Color.card)
+                        .tracking(AppTracking.poster)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
+                    Spacer()
+                } else if patients.isEmpty {
+                    Spacer()
+                    Text("None")
+                        .font(AppFont.poster)
+                        .foregroundStyle(Color.card)
+                        .tracking(AppTracking.poster)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
+                    Text("Add a patient with their email.")
                         .font(AppFont.body)
-                        .foregroundStyle(Color.ink)
-                        .tint(Color.flare)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.emailAddress)
-                        .textContentType(.emailAddress)
-                        .padding(14)
-                        .background(Color.card)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color.hairline, lineWidth: 1)
-                        )
+                        .foregroundStyle(Color.mute)
+                    Spacer()
+                } else {
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(Array(patients.enumerated()), id: \.element.id) { index, person in
+                                personSlab(person, index: index)
+                                    .contextMenu {
+                                        Button("Stop watching", role: .destructive) {
+                                            pendingRemove = person
+                                        }
+                                    }
+                                    .disabled(removingId == person.id)
+                            }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                    Text("Hold a name to stop.")
+                        .font(AppFont.caption)
+                        .foregroundStyle(Color.mute)
                 }
 
                 if let errorText {
@@ -135,8 +165,19 @@ private struct CaregiverPeopleView: View {
                         .foregroundStyle(Color.mute)
                 }
 
+                TextField("", text: $email, prompt: Text("Patient email").foregroundStyle(Color.mute))
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.card)
+                    .tint(Color.flare)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.emailAddress)
+                    .textContentType(.emailAddress)
+                    .padding(14)
+                    .background(Color.night)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
                 Button(action: add) {
-                    Text(adding ? "Working…" : "Add patient")
+                    Text(adding ? "Working…" : "Add")
                         .font(AppFont.button)
                         .foregroundStyle(Color.ink)
                         .frame(maxWidth: .infinity)
@@ -145,37 +186,15 @@ private struct CaregiverPeopleView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .disabled(adding || email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                if busy && patients.isEmpty {
-                    Text("Loading…")
-                        .font(AppFont.caption)
-                        .foregroundStyle(Color.mute)
-                }
-
-                if !patients.isEmpty {
-                    Text("Watching")
-                        .font(AppFont.section)
-                        .foregroundStyle(Color.ink)
-                        .tracking(AppTracking.section)
-                        .padding(.top, 8)
-
-                    ForEach(patients) { person in
-                        personCard(
-                            person,
-                            accent: Color.flare,
-                            role: "Patient",
-                            removeTitle: removingId == person.id ? "Removing…" : "Stop watching",
-                            onRemove: { pendingRemove = person }
-                        )
-                    }
-                }
             }
-            .padding(20)
         }
         .onAppear {
-            UITextField.appearance().textColor = UIColor(Color.ink)
+            UITextField.appearance().textColor = UIColor(Color.card)
             UITextField.appearance().tintColor = UIColor(Color.flare)
             load()
+        }
+        .onDisappear {
+            UITextField.appearance().textColor = UIColor(Color.ink)
         }
         .confirmationDialog(
             "Stop watching \(pendingRemove?.displayName ?? "this patient")?",
@@ -225,7 +244,7 @@ private struct CaregiverPeopleView: View {
                     patients.append(person)
                 }
                 email = ""
-                note = "Linked. They get a Graph Health email if that address is already a patient."
+                note = "Linked. They get a mail if that address is already a patient."
             } catch {
                 errorText = error.localizedDescription
             }
@@ -250,40 +269,24 @@ private struct CaregiverPeopleView: View {
     }
 }
 
-private func personCard(
-    _ person: User,
-    accent: Color,
-    role: String,
-    removeTitle: String? = nil,
-    onRemove: (() -> Void)? = nil
-) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-        Text(person.displayName)
-            .font(AppFont.cardTitle)
-            .foregroundStyle(Color.ink)
-            .tracking(AppTracking.section)
-        Text(person.email)
-            .font(AppFont.body)
-            .foregroundStyle(Color.mute)
-        Text(role)
-            .font(AppFont.chip)
-            .foregroundStyle(Color.ink)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(accent)
-            .clipShape(Capsule())
-        if let removeTitle, let onRemove {
-            Button(removeTitle, action: onRemove)
-                .font(AppFont.bodyMedium)
-                .foregroundStyle(Color.alert)
-        }
+private func personSlab(_ person: User, index: Int) -> some View {
+    Text(person.displayName.firstName)
+        .font(AppFont.slab)
+        .foregroundStyle(Color.ink)
+        .tracking(AppTracking.slab)
+        .minimumScaleFactor(0.3)
+        .lineLimit(1)
+        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
+        .padding(.horizontal, 24)
+        .background(fanFill(index))
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .accessibilityLabel(person.displayName)
+}
+
+private func fanFill(_ index: Int) -> Color {
+    switch index % 3 {
+    case 0: return Color.flare
+    case 1: return Color.acid
+    default: return Color.card
     }
-    .padding(16)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color.card)
-    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-    .overlay(
-        RoundedRectangle(cornerRadius: 20, style: .continuous)
-            .stroke(Color.hairline, lineWidth: 1)
-    )
 }
