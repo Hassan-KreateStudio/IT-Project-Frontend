@@ -1,31 +1,27 @@
 import SwiftUI
 
 enum AppTab: Hashable {
-    case today, trends, people, you
+    case summary, sharing, you
 }
 
 struct MainTabView: View {
     @EnvironmentObject private var session: SessionStore
     @EnvironmentObject private var graph: GraphStore
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = .today
+    @State private var tab: AppTab = .summary
     @State private var health = HealthKitService()
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
 
     var body: some View {
         TabView(selection: $tab) {
-            TodayView()
-                .tabItem { Label("Today", systemImage: "house") }
-                .tag(AppTab.today)
-
-            TrendsView()
-                .tabItem { Label("Trends", systemImage: "square.grid.2x2") }
-                .tag(AppTab.trends)
+            SummaryView()
+                .tabItem { Label("Summary", systemImage: "house") }
+                .tag(AppTab.summary)
 
             PeopleView()
-                .tabItem { Label("People", systemImage: "person.2") }
-                .tag(AppTab.people)
+                .tabItem { Label("Sharing", systemImage: "person.2") }
+                .tag(AppTab.sharing)
 
             YouView()
                 .tabItem { Label("You", systemImage: "person") }
@@ -33,7 +29,7 @@ struct MainTabView: View {
         }
         .tint(Color.flare)
         .onAppear {
-            if isCaregiver { tab = .people }
+            if isCaregiver { tab = .sharing }
             styleTabBar()
             catchUpHealth()
         }
@@ -91,7 +87,7 @@ struct MainTabView: View {
     }
 }
 
-private struct TodayView: View {
+private struct SummaryView: View {
     @EnvironmentObject private var session: SessionStore
     @EnvironmentObject private var graph: GraphStore
     @State private var health = HealthKitService()
@@ -111,7 +107,7 @@ private struct TodayView: View {
                     .tracking(AppTracking.largeTitle)
 
                 if isCaregiver {
-                    Text("Pick someone in People. This tab will show their latest steps and glucose.")
+                    Text("Pick someone in Sharing. This tab will show their latest steps and glucose.")
                         .font(AppFont.body)
                         .foregroundStyle(Color.mute)
                         .lineSpacing(4)
@@ -149,6 +145,19 @@ private struct TodayView: View {
                         .font(AppFont.bodyMedium)
                         .foregroundStyle(Color.flare)
                 }
+
+                if !isCaregiver {
+                    Text("Week")
+                        .font(AppFont.section)
+                        .foregroundStyle(Color.ink)
+                        .tracking(AppTracking.section)
+                        .padding(.top, 8)
+
+                    Text("Query-time rollups from dashboard. Not a stored predictor.")
+                        .font(AppFont.body)
+                        .foregroundStyle(Color.mute)
+                        .lineSpacing(4)
+                }
             }
             .padding(20)
             .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -178,7 +187,7 @@ private struct TodayView: View {
                 .foregroundStyle(Color.ink)
                 .tracking(AppTracking.section)
 
-            Text("Your Watch writes to Health on this iPhone. Graph Health only reads it — steps, heart rate, and movement — so Today can fill in.")
+            Text("Your Watch writes to Health on this iPhone. Graph Health only reads it — steps, heart rate, and movement — so Summary can fill in.")
                 .font(AppFont.body)
                 .foregroundStyle(Color.mute)
                 .lineSpacing(4)
@@ -320,15 +329,6 @@ private struct TodayView: View {
     }
 }
 
-private struct TrendsView: View {
-    var body: some View {
-        tabScreen(
-            title: "Trends",
-            body: "Query-time rollups from dashboard. Not a stored predictor."
-        )
-    }
-}
-
 private struct YouView: View {
     @EnvironmentObject private var session: SessionStore
 
@@ -368,23 +368,4 @@ private struct YouView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.canvas.ignoresSafeArea())
     }
-}
-
-private func tabScreen(title: String, body: String) -> some View {
-    VStack(alignment: .leading, spacing: 16) {
-        Text(title)
-            .font(AppFont.largeTitle)
-            .foregroundStyle(Color.ink)
-            .tracking(AppTracking.largeTitle)
-
-        Text(body)
-            .font(AppFont.body)
-            .foregroundStyle(Color.mute)
-            .lineSpacing(4)
-
-        Spacer()
-    }
-    .padding(20)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .background(Color.canvas.ignoresSafeArea())
 }

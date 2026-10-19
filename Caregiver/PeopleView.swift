@@ -28,7 +28,7 @@ private struct PatientPeopleView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("People")
+                Text("Sharing")
                     .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
                     .tracking(AppTracking.largeTitle)
@@ -94,7 +94,7 @@ private struct CaregiverPeopleView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("People")
+                Text("Sharing")
                     .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
                     .tracking(AppTracking.largeTitle)
