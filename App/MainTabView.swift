@@ -56,7 +56,8 @@ struct MainTabView: View {
                     displayName: user.displayName,
                     health: health,
                     graph: graph,
-                    activity: ActivityService(client: session.client())
+                    activity: ActivityService(client: session.client()),
+                    profile: ProfileService(client: session.client())
                 )
             } catch {
                 Log.health("catch-up failed: \(error.localizedDescription)")
@@ -301,7 +302,8 @@ private struct TodayView: View {
                     displayName: user.displayName,
                     health: health,
                     graph: graph,
-                    activity: ActivityService(client: session.client())
+                    activity: ActivityService(client: session.client()),
+                    profile: ProfileService(client: session.client())
                 )
                 if synced {
                     syncNote = "Week is on the phone and sent to the API."

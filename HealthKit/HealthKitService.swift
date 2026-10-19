@@ -45,6 +45,11 @@ struct HealthKitService {
         Log.health("permission sheet finished (prompted=true even if samples are empty)")
     }
 
+    func ensureReadAccess() async {
+        guard Self.isAvailable else { return }
+        try? await store.requestAuthorization(toShare: Set<HKSampleType>(), read: Self.readTypes)
+    }
+
     func activity(from start: Date, to now: Date = Date(), calendar: Calendar = .current) async throws -> [HealthDay] {
         let fromDay = calendar.startOfDay(for: start)
         let today = calendar.startOfDay(for: now)
@@ -150,6 +155,66 @@ struct HealthKitService {
         if let stand = HKQuantityType.quantityType(forIdentifier: .appleStandTime) {
             types.insert(stand)
         }
+        if let dob = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) {
+            types.insert(dob)
+        }
+        if let height = HKQuantityType.quantityType(forIdentifier: .height) {
+            types.insert(height)
+        }
+        if let weight = HKQuantityType.quantityType(forIdentifier: .bodyMass) {
+            types.insert(weight)
+        }
+        if let bmi = HKQuantityType.quantityType(forIdentifier: .bodyMassIndex) {
+            types.insert(bmi)
+        }
         return types
+    }
+
+    func profile() async -> HealthProfile {
+        let ageYears = Self.ageYears(from: try? store.dateOfBirthComponents())
+        let heightCm = await latestQuantity(.height, unit: .meterUnit(with: .centi))
+        let weightKg = await latestQuantity(.bodyMass, unit: .gramUnit(with: .kilo))
+        let bmi = await latestQuantity(.bodyMassIndex, unit: .count())
+        Log.health(
+            "profile age=\(ageYears.map { String($0) } ?? "nil") heightCm=\(heightCm.map { String($0) } ?? "nil") weightKg=\(weightKg.map { String($0) } ?? "nil") bmi=\(bmi.map { String($0) } ?? "nil")"
+        )
+        return HealthProfile(ageYears: ageYears, heightCm: heightCm, weightKg: weightKg, bmi: bmi)
+    }
+
+    private func latestQuantity(_ identifier: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double? {
+        guard let type = HKQuantityType.quantityType(forIdentifier: identifier) else { return nil }
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: [sort]) { _, samples, error in
+                if let error {
+                    Log.health("\(identifier.rawValue) latest failed: \(error.localizedDescription)")
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let sample = samples?.first as? HKQuantitySample
+                continuation.resume(returning: sample?.quantity.doubleValue(for: unit))
+            }
+            store.execute(query)
+        }
+    }
+
+    private static func ageYears(from components: DateComponents?) -> Int? {
+        guard let components, let birth = Calendar.current.date(from: components) else {
+            return nil
+        }
+        let years = Calendar.current.dateComponents([.year], from: birth, to: Date()).year
+        guard let years, years >= 1 else { return nil }
+        return years
+    }
+}
+
+struct HealthProfile: Sendable {
+    var ageYears: Int?
+    var heightCm: Double?
+    var weightKg: Double?
+    var bmi: Double?
+
+    var hasAny: Bool {
+        ageYears != nil || heightCm != nil || weightKg != nil || bmi != nil
     }
 }

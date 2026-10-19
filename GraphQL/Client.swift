@@ -54,6 +54,7 @@ struct GraphQLError: Decodable, LocalizedError {
         case "unauthorized": return "Sign in again."
         case "not_found": return "No patient account with that email yet. They sign in as patient first — then add them again."
         case "forbidden": return "You can’t do that with this account."
+        case "invalid_profile": return "Those Health details look off. Check age, height, and weight in Apple Health."
         default: return message
         }
     }

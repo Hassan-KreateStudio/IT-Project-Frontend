@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Graph Health reads steps, heart rate, and movement from Apple Health so your Watch can fill Today.</string>
+	<string>Graph Health reads steps, heart rate, movement, date of birth, height, and weight from Apple Health.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Graph Health does not write samples to Apple Health. iOS still requires this for Health access.</string>
 	<key>UIAppFonts</key>

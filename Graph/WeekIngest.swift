@@ -7,7 +7,8 @@ enum WeekIngest {
         displayName: String,
         health: HealthKitService,
         graph: GraphStore,
-        activity: ActivityService
+        activity: ActivityService,
+        profile: ProfileService
     ) async throws -> Bool {
         if graph.catchingUp {
             Log.health("skip overlapping catch-up")
@@ -15,6 +16,8 @@ enum WeekIngest {
         }
         graph.catchingUp = true
         defer { graph.catchingUp = false }
+
+        await health.ensureReadAccess()
 
         let now = Date()
         let calendar = Calendar.current
@@ -38,6 +41,13 @@ enum WeekIngest {
 
         try graph.upsert(patientId: patientId, displayName: displayName, samples: samples)
         HealthCursor.markRead(patientId: patientId, at: now)
+
+        let traits = await health.profile()
+        do {
+            try await profile.sync(traits)
+        } catch {
+            Log.sync("profile failed: \(error.localizedDescription)")
+        }
 
         do {
             let synced = try await activity.sync(samples)
