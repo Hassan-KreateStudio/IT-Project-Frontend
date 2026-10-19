@@ -17,7 +17,7 @@ enum WeekIngest {
         graph.catchingUp = true
         defer { graph.catchingUp = false }
 
-        await health.ensureReadAccess()
+        await health.requestProfileAccessIfNeeded()
 
         let now = Date()
         let calendar = Calendar.current

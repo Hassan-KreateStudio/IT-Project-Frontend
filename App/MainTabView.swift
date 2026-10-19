@@ -49,8 +49,9 @@ struct MainTabView: View {
               HealthKitService.isAvailable,
               health.hasPrompted
         else { return }
-        Task {
+        Task { @MainActor in
             do {
+                await health.requestProfileAccessIfNeeded()
                 _ = try await WeekIngest.run(
                     patientId: user.id,
                     displayName: user.displayName,

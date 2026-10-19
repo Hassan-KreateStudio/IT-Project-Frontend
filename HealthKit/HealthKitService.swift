@@ -27,6 +27,7 @@ struct HealthDay: Sendable {
 struct HealthKitService {
     private let store = HKHealthStore()
     private static let promptedKey = "itproject.healthkit.prompted"
+    private static let profilePromptedKey = "itproject.healthkit.profile.prompted"
     private static let wakingMinutes = 960
 
     static var isAvailable: Bool {
@@ -37,17 +38,29 @@ struct HealthKitService {
         UserDefaults.standard.bool(forKey: Self.promptedKey)
     }
 
+    var hasPromptedProfile: Bool {
+        UserDefaults.standard.bool(forKey: Self.profilePromptedKey)
+    }
+
+    /// First Allow: activity + date of birth, height, and weight in one Health sheet.
+    @MainActor
     func requestAccess() async throws {
         guard Self.isAvailable else { return }
-        Log.health("requesting read access")
+        Log.health("requesting read access (activity + age/height/weight)")
         try await store.requestAuthorization(toShare: Set<HKSampleType>(), read: Self.readTypes)
         UserDefaults.standard.set(true, forKey: Self.promptedKey)
+        UserDefaults.standard.set(true, forKey: Self.profilePromptedKey)
         Log.health("permission sheet finished (prompted=true even if samples are empty)")
     }
 
-    func ensureReadAccess() async {
-        guard Self.isAvailable else { return }
-        try? await store.requestAuthorization(toShare: Set<HKSampleType>(), read: Self.readTypes)
+    /// Later installs already allowed steps: ask only for the three profile types, once.
+    @MainActor
+    func requestProfileAccessIfNeeded() async {
+        guard Self.isAvailable, !hasPromptedProfile else { return }
+        Log.health("requesting date of birth, height, weight")
+        try? await store.requestAuthorization(toShare: Set<HKSampleType>(), read: Self.profileTypes)
+        UserDefaults.standard.set(true, forKey: Self.profilePromptedKey)
+        Log.health("profile permission sheet finished")
     }
 
     func activity(from start: Date, to now: Date = Date(), calendar: Calendar = .current) async throws -> [HealthDay] {
@@ -141,8 +154,22 @@ struct HealthKitService {
         }
     }
 
-    private static var readTypes: Set<HKObjectType> {
+    private static var profileTypes: Set<HKObjectType> {
         var types: Set<HKObjectType> = []
+        if let dob = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) {
+            types.insert(dob)
+        }
+        if let height = HKQuantityType.quantityType(forIdentifier: .height) {
+            types.insert(height)
+        }
+        if let weight = HKQuantityType.quantityType(forIdentifier: .bodyMass) {
+            types.insert(weight)
+        }
+        return types
+    }
+
+    private static var readTypes: Set<HKObjectType> {
+        var types: Set<HKObjectType> = profileTypes
         if let steps = HKQuantityType.quantityType(forIdentifier: .stepCount) {
             types.insert(steps)
         }
@@ -154,18 +181,6 @@ struct HealthKitService {
         }
         if let stand = HKQuantityType.quantityType(forIdentifier: .appleStandTime) {
             types.insert(stand)
-        }
-        if let dob = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) {
-            types.insert(dob)
-        }
-        if let height = HKQuantityType.quantityType(forIdentifier: .height) {
-            types.insert(height)
-        }
-        if let weight = HKQuantityType.quantityType(forIdentifier: .bodyMass) {
-            types.insert(weight)
-        }
-        if let bmi = HKQuantityType.quantityType(forIdentifier: .bodyMassIndex) {
-            types.insert(bmi)
         }
         return types
     }
