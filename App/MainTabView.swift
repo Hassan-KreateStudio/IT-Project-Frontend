@@ -29,6 +29,7 @@ struct MainTabView: View {
                 .tag(AppTab.you)
         }
         .tint(Color.flare)
+        .toolbarBackground(.hidden, for: .tabBar)
         .onAppear {
             if isCaregiver { tab = .sharing }
             styleTabBar()
@@ -95,9 +96,10 @@ struct MainTabView: View {
             for: .selected
         )
         let bar = UITabBarAppearance()
-        bar.configureWithOpaqueBackground()
-        bar.backgroundColor = UIColor(Color.canvas)
-        bar.shadowColor = UIColor(Color.hairline)
+        bar.configureWithTransparentBackground()
+        bar.backgroundColor = .clear
+        bar.shadowColor = .clear
+        UITabBar.appearance().isTranslucent = true
         UITabBar.appearance().standardAppearance = bar
         UITabBar.appearance().scrollEdgeAppearance = bar
     }
@@ -116,6 +118,9 @@ private struct SummaryView: View {
     @State private var ingesting = false
     @State private var errorText: String?
     @State private var hero: SummaryHero = .steps
+    @State private var dragX: CGFloat = 0
+    @State private var dragAxis: Axis?
+    @State private var isFlinging = false
     @State private var glucoseText = ""
     @State private var savingGlucose = false
     @FocusState private var glucoseFocused: Bool
@@ -157,7 +162,7 @@ private struct SummaryView: View {
                     leftover: "Reading Health on this iPhone."
                 )
             } else if let today = graph.today {
-                metricsPoster(today)
+                metricsDeck(today)
             } else {
                 messagePoster(
                     fill: Color.flare,
@@ -316,55 +321,141 @@ private struct SummaryView: View {
         }
     }
 
-    private func metricsPoster(_ today: TodayMetrics) -> some View {
-        let page = page(for: today)
-        return Button(action: cycle) {
-            DippedStage(fill: page.fill, scheme: page.scheme) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(weekday)
-                        .font(AppFont.bodyMedium)
+    private func metricsDeck(_ today: TodayMetrics) -> some View {
+        let current = page(for: today, hero: hero)
+        let peekStep = dragX < 0 ? 1 : -1
+        let peek = page(for: today, hero: neighbor(peekStep))
+        return GeometryReader { geo in
+            let width = geo.size.width
+            ZStack {
+                posterCard(peek)
+                posterCard(current)
+                    .offset(x: dragX)
+                    .rotationEffect(.degrees(Double(dragX / max(width, 1)) * 6))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .highPriorityGesture(cardSwipe(width: width))
+            .onTapGesture {
+                if errorText != nil { ingestWeek() }
+            }
+        }
+        .ignoresSafeArea()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(current.accessibility)
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: cycle(1)
+            case .decrement: cycle(-1)
+            default: break
+            }
+        }
+    }
+
+    private func posterCard(_ page: HeroPage) -> some View {
+        DippedStage(fill: page.fill, scheme: page.scheme) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(weekday)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(page.ink)
+                Spacer()
+                Image(systemName: page.icon)
+                    .font(.system(size: 36, weight: .regular))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundStyle(page.number)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 10)
+                    .accessibilityHidden(true)
+                Text(page.value)
+                    .font(AppFont.poster)
+                    .foregroundStyle(page.number)
+                    .tracking(AppTracking.poster)
+                    .minimumScaleFactor(0.25)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                if let unit = page.unit {
+                    Text(unit)
+                        .font(AppFont.unit)
                         .foregroundStyle(page.ink)
-                    Spacer()
-                    Text(page.value)
-                        .font(AppFont.poster)
-                        .foregroundStyle(page.number)
-                        .tracking(AppTracking.poster)
-                        .minimumScaleFactor(0.25)
-                        .lineLimit(1)
                         .frame(maxWidth: .infinity)
-                        .multilineTextAlignment(.center)
-                    if let unit = page.unit {
-                        Text(unit)
-                            .font(AppFont.unit)
+                        .padding(.top, 4)
+                }
+                Spacer()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(page.leftover)
+                        .font(AppFont.body)
+                        .foregroundStyle(page.ink)
+                    if ingesting || graph.catchingUp {
+                        Text("Updating…")
+                            .font(AppFont.caption)
                             .foregroundStyle(page.ink)
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 4)
                     }
-                    Spacer()
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(page.leftover)
-                            .font(AppFont.body)
+                    if let errorText {
+                        Text(errorText)
+                            .font(AppFont.captionMedium)
+                            .foregroundStyle(page.scheme == .dark ? Color.alert : Color.ink)
+                        Text("Try again")
+                            .font(AppFont.bodyMedium)
                             .foregroundStyle(page.ink)
-                        if ingesting || graph.catchingUp {
-                            Text("Updating…")
-                                .font(AppFont.caption)
-                                .foregroundStyle(page.ink)
-                        }
-                        if let errorText {
-                            Text(errorText)
-                                .font(AppFont.captionMedium)
-                                .foregroundStyle(page.scheme == .dark ? Color.alert : Color.ink)
-                            Text("Try again")
-                                .font(AppFont.bodyMedium)
-                                .foregroundStyle(page.ink)
-                        }
                     }
                 }
             }
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(page.accessibility)
-        .accessibilityHint("Shows the next reading")
+    }
+
+    private func cardSwipe(width: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                guard !isFlinging else { return }
+                let dx = value.translation.width
+                let dy = value.translation.height
+                if dragAxis == nil {
+                    if abs(dx) > abs(dy) { dragAxis = .horizontal }
+                    else if abs(dy) > 10 { dragAxis = .vertical }
+                }
+                guard dragAxis == .horizontal else { return }
+                dragX = dx
+            }
+            .onEnded { value in
+                defer { dragAxis = nil }
+                guard dragAxis == .horizontal else {
+                    dragX = 0
+                    return
+                }
+                let predicted = value.predictedEndTranslation.width
+                let threshold = width * 0.22
+                if predicted < -threshold || value.translation.width < -threshold {
+                    fling(to: -width * 1.2, step: 1)
+                } else if predicted > threshold || value.translation.width > threshold {
+                    fling(to: width * 1.2, step: -1)
+                } else {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                        dragX = 0
+                    }
+                }
+            }
+    }
+
+    private func fling(to x: CGFloat, step: Int) {
+        isFlinging = true
+        withAnimation(.easeIn(duration: 0.28)) {
+            dragX = x
+        } completion: {
+            var reset = Transaction()
+            reset.disablesAnimations = true
+            withTransaction(reset) {
+                cycle(step)
+                dragX = 0
+            }
+            isFlinging = false
+        }
+    }
+
+    private func neighbor(_ step: Int) -> SummaryHero {
+        let all = SummaryHero.allCases
+        return all[(hero.rawValue + step + all.count) % all.count]
     }
 
     private func messagePoster(
@@ -410,13 +501,14 @@ private struct SummaryView: View {
         var scheme: ColorScheme
         var ink: Color
         var number: Color
+        var icon: String
         var value: String
         var unit: String?
         var leftover: String
         var accessibility: String
     }
 
-    private func page(for today: TodayMetrics) -> HeroPage {
+    private func page(for today: TodayMetrics, hero: SummaryHero) -> HeroPage {
         let steps = today.steps.formatted()
         let glucoseNote = today.glucose.map { "\(formatGlucose($0)) mg/dL" } ?? "glucose not in yet"
         switch hero {
@@ -426,6 +518,7 @@ private struct SummaryView: View {
                 scheme: .light,
                 ink: Color.ink,
                 number: Color.ink,
+                icon: "figure.walk",
                 value: steps,
                 unit: "steps",
                 leftover: glucoseNote,
@@ -433,10 +526,11 @@ private struct SummaryView: View {
             )
         case .heartRate:
             return HeroPage(
-                fill: Color.ink,
-                scheme: .dark,
-                ink: Color.card,
-                number: Color.card,
+                fill: Color.info,
+                scheme: .light,
+                ink: Color.ink,
+                number: Color.ink,
+                icon: "heart.fill",
                 value: today.heartRate.map(String.init) ?? "—",
                 unit: "bpm",
                 leftover: "\(steps) steps",
@@ -448,17 +542,19 @@ private struct SummaryView: View {
                 scheme: .light,
                 ink: Color.ink,
                 number: Color.ink,
+                icon: "figure.run",
                 value: "\(today.durationMinutes)",
-                unit: "min",
+                unit: "exercise min",
                 leftover: "\(steps) steps",
-                accessibility: "\(today.durationMinutes) minutes"
+                accessibility: "\(today.durationMinutes) minutes of exercise"
             )
         case .intensity:
             return HeroPage(
-                fill: Color.night,
-                scheme: .dark,
-                ink: Color.card,
-                number: Color.acid,
+                fill: Color.aurora,
+                scheme: .light,
+                ink: Color.ink,
+                number: Color.ink,
+                icon: "flame.fill",
                 value: intensityLabel(today.intensity),
                 unit: "intensity",
                 leftover: "\(steps) steps",
@@ -466,10 +562,11 @@ private struct SummaryView: View {
             )
         case .sedentary:
             return HeroPage(
-                fill: Color.ink,
-                scheme: .dark,
-                ink: Color.card,
-                number: Color.warn,
+                fill: Color.warn,
+                scheme: .light,
+                ink: Color.ink,
+                number: Color.ink,
+                icon: "chair.fill",
                 value: "\(today.sedentaryMinutes)",
                 unit: "min sitting",
                 leftover: "\(steps) steps",
@@ -477,10 +574,11 @@ private struct SummaryView: View {
             )
         case .glucose:
             return HeroPage(
-                fill: Color.ink,
-                scheme: .dark,
-                ink: Color.card,
+                fill: Color.card,
+                scheme: .light,
+                ink: Color.ink,
                 number: Color.flare,
+                icon: "drop.fill",
                 value: today.glucose.map(formatGlucose) ?? "—",
                 unit: "mg/dL",
                 leftover: "\(steps) steps",
@@ -493,13 +591,14 @@ private struct SummaryView: View {
         value.rounded() == value ? String(Int(value)) : String(format: "%.1f", value)
     }
 
-    private func cycle() {
+    private func cycle(_ step: Int) {
         if errorText != nil {
             ingestWeek()
             return
         }
         let all = SummaryHero.allCases
-        hero = all[(hero.rawValue + 1) % all.count]
+        let next = (hero.rawValue + step + all.count) % all.count
+        hero = all[next]
     }
 
     private func intensityLabel(_ raw: String) -> String {
