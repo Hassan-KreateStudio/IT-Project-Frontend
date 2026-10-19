@@ -22,6 +22,8 @@ final class Day {
     var person: Person?
     @Relationship(deleteRule: .cascade, inverse: \DayActivity.day)
     var activity: DayActivity?
+    @Relationship(deleteRule: .cascade, inverse: \DayGlucose.day)
+    var glucose: DayGlucose?
 
     init(dayKey: String, date: Date) {
         self.dayKey = dayKey
@@ -59,5 +61,20 @@ final class DayActivity {
         self.intensity = intensity
         self.sedentaryMinutes = sedentaryMinutes
         self.synced = synced
+    }
+}
+
+@Model
+final class DayGlucose {
+    var value: Double
+    var recordedAt: Date
+    var synced: Bool
+    var day: Day?
+
+    init(value: Double, recordedAt: Date, synced: Bool = false) {
+        self.value = value
+        self.recordedAt = recordedAt
+        self.synced = synced
+        self.day = nil
     }
 }

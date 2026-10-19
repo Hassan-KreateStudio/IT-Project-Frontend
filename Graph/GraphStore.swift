@@ -8,18 +8,25 @@ struct TodayMetrics: Equatable {
     var durationMinutes: Int
     var intensity: String
     var sedentaryMinutes: Int
+    var glucose: Double?
+}
+
+struct PendingGlucose: Equatable {
+    var value: Double
+    var recordedAt: Date
 }
 
 @MainActor
 final class GraphStore: ObservableObject {
     let container: ModelContainer
     @Published private(set) var today: TodayMetrics?
+    @Published private(set) var todayGlucose: Double?
     @Published var catchingUp = false
 
     private var context: ModelContext { container.mainContext }
 
     init(inMemory: Bool = false) {
-        let schema = Schema([Person.self, Day.self, DayActivity.self])
+        let schema = Schema([Person.self, Day.self, DayActivity.self, DayGlucose.self])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         do {
             container = try ModelContainer(for: schema, configurations: configuration)
@@ -78,25 +85,63 @@ final class GraphStore: ObservableObject {
         try context.save()
     }
 
+    func saveGlucose(patientId: String, displayName: String, value: Double, recordedAt: Date = Date()) throws {
+        let person = try person(patientId: patientId, displayName: displayName)
+        let sourceId = HealthDay.sourceId(for: recordedAt)
+        let key = Self.dayKey(patientId: patientId, sourceId: sourceId)
+        let day = try day(key: key, date: Calendar.current.startOfDay(for: recordedAt), person: person)
+        if let existing = day.glucose {
+            existing.value = value
+            existing.recordedAt = recordedAt
+            existing.synced = false
+        } else {
+            let reading = DayGlucose(value: value, recordedAt: recordedAt)
+            reading.day = day
+            day.glucose = reading
+            context.insert(reading)
+        }
+        try context.save()
+        Log.graph("glucose \(sourceId) \(value) mg/dL")
+        refreshToday(patientId: patientId)
+    }
+
+    func pendingGlucose(patientId: String) -> PendingGlucose? {
+        guard let reading = todayDay(patientId: patientId)?.glucose, !reading.synced else { return nil }
+        return PendingGlucose(value: reading.value, recordedAt: reading.recordedAt)
+    }
+
+    func markGlucoseSynced(patientId: String) throws {
+        guard let reading = todayDay(patientId: patientId)?.glucose else { return }
+        reading.synced = true
+        try context.save()
+    }
+
     func refreshToday(patientId: String) {
         let todayId = HealthDay.sourceId(for: Date())
-        let key = Self.dayKey(patientId: patientId, sourceId: todayId)
-        var descriptor = FetchDescriptor<Day>(predicate: #Predicate { $0.dayKey == key })
-        descriptor.fetchLimit = 1
-        let day = try? context.fetch(descriptor).first
+        let day = todayDay(patientId: patientId)
+        todayGlucose = day?.glucose?.value
         if let activity = day?.activity {
             today = TodayMetrics(
                 steps: activity.stepCount,
                 heartRate: activity.heartRate,
                 durationMinutes: activity.durationMinutes,
                 intensity: activity.intensity,
-                sedentaryMinutes: activity.sedentaryMinutes
+                sedentaryMinutes: activity.sedentaryMinutes,
+                glucose: todayGlucose
             )
-            Log.graph("today \(todayId) steps=\(activity.stepCount) hr=\(activity.heartRate.map(String.init) ?? "—") duration=\(activity.durationMinutes) intensity=\(activity.intensity) sedentary=\(activity.sedentaryMinutes)")
+            Log.graph("today \(todayId) steps=\(activity.stepCount) hr=\(activity.heartRate.map(String.init) ?? "—") duration=\(activity.durationMinutes) intensity=\(activity.intensity) sedentary=\(activity.sedentaryMinutes) glucose=\(todayGlucose.map { String($0) } ?? "—")")
         } else {
             today = nil
-            Log.graph("no today node yet")
+            Log.graph("no today activity yet glucose=\(todayGlucose.map { String($0) } ?? "—")")
         }
+    }
+
+    private func todayDay(patientId: String) -> Day? {
+        let todayId = HealthDay.sourceId(for: Date())
+        let key = Self.dayKey(patientId: patientId, sourceId: todayId)
+        var descriptor = FetchDescriptor<Day>(predicate: #Predicate { $0.dayKey == key })
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first
     }
 
     private func person(patientId: String, displayName: String) throws -> Person {
