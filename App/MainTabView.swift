@@ -29,10 +29,8 @@ struct MainTabView: View {
                 .tag(AppTab.you)
         }
         .tint(Color.flare)
-        .toolbarBackground(.hidden, for: .tabBar)
         .onAppear {
             if isCaregiver { tab = .sharing }
-            styleTabBar()
             catchUpHealth()
         }
         .onChange(of: scenePhase) { _, phase in
@@ -77,31 +75,6 @@ struct MainTabView: View {
         } catch {
             Log.sync("glucose failed: \(error.localizedDescription)")
         }
-    }
-
-    private func styleTabBar() {
-        let item = UITabBarItem.appearance()
-        item.setTitleTextAttributes(
-            [
-                .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
-                .foregroundColor: UIColor(Color.mute)
-            ],
-            for: .normal
-        )
-        item.setTitleTextAttributes(
-            [
-                .font: UIFont(name: "Outfit-Medium", size: 10) as Any,
-                .foregroundColor: UIColor(Color.flare)
-            ],
-            for: .selected
-        )
-        let bar = UITabBarAppearance()
-        bar.configureWithTransparentBackground()
-        bar.backgroundColor = .clear
-        bar.shadowColor = .clear
-        UITabBar.appearance().isTranslucent = true
-        UITabBar.appearance().standardAppearance = bar
-        UITabBar.appearance().scrollEdgeAppearance = bar
     }
 }
 
