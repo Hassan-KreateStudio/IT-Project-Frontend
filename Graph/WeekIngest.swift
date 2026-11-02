@@ -1,6 +1,9 @@
 import Foundation
 
 enum WeekIngest {
+    /// First pull on a fresh install. HealthKit lets us ask for as much as it has.
+    static let backfillDays = 90
+
     @MainActor
     static func run(
         patientId: String,
@@ -26,9 +29,9 @@ enum WeekIngest {
         if let lastRead = HealthCursor.lastRead(patientId: patientId) {
             start = calendar.startOfDay(for: lastRead)
             Log.health("catch-up since \(HealthDay.sourceId(for: start)) (cursor \(lastRead))")
-        } else if let backfill = calendar.date(byAdding: .day, value: -6, to: today) {
+        } else if let backfill = calendar.date(byAdding: .day, value: -(Self.backfillDays - 1), to: today) {
             start = backfill
-            Log.health("first pull last 7 days (simulator is often zeros)")
+            Log.health("first pull last \(Self.backfillDays) days")
         } else {
             start = today
         }

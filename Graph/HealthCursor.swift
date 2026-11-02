@@ -11,6 +11,7 @@ enum HealthCursor {
     }
 
     private static func key(_ patientId: String) -> String {
-        "itproject.health.lastRead.\(patientId)"
+        // v2: the 90-day backfill re-runs once on installs that already synced the old 7.
+        "itproject.health.lastRead.v2.\(patientId)"
     }
 }

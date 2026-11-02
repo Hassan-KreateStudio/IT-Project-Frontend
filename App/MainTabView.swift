@@ -249,8 +249,13 @@ private struct SummaryView: View {
                     .foregroundStyle(Color.flare)
                     .tracking(AppTracking.poster)
                     .multilineTextAlignment(.center)
-                    .keyboardType(.decimalPad)
+                    .keyboardType(.numberPad)
                     .focused($glucoseFocused)
+                    .onChange(of: glucoseText) { old, new in
+                        let digits = new.filter(\.isNumber)
+                        // Drop the keystroke that leaves the 40–400 window; >3 digits can't be valid.
+                        glucoseText = digits.count > 3 || (Int(digits) ?? 0) > Int(GlucoseRange.maxMgDl) ? old : digits
+                    }
                     .minimumScaleFactor(0.25)
                     .frame(maxWidth: .infinity)
                 Text("mg/dL")
@@ -259,7 +264,7 @@ private struct SummaryView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 4)
                 Spacer()
-                Text("Today’s glucose. Then the day.")
+                Text("Insert today’s glucose.")
                     .font(AppFont.body)
                     .foregroundStyle(Color.card)
                     .padding(.bottom, 16)
