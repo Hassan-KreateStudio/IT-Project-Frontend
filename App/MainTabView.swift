@@ -105,6 +105,46 @@ struct MainTabView: View {
     }
 }
 
+private struct WatchBadge: View {
+    var state: WatchLink.State
+
+    private var dotColor: Color {
+        switch state {
+        case .connected: return Color.acid
+        case .paired: return Color.warn
+        case .absent: return Color.mute
+        }
+    }
+
+    private var label: String {
+        switch state {
+        case .connected: return "Watch connected and syncing"
+        case .paired: return "Watch paired, no recent data"
+        case .absent: return "No Watch paired"
+        }
+    }
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Circle()
+                .fill(Color.night)
+                .overlay(Circle().stroke(Color.dusk, lineWidth: 1))
+                .overlay(
+                    Image(systemName: "applewatch")
+                        .font(.system(size: 18, weight: .regular))
+                        .foregroundStyle(state == .absent ? Color.mute : Color.card)
+                )
+                .frame(width: 40, height: 40)
+            Circle()
+                .fill(dotColor)
+                .frame(width: 10, height: 10)
+                .overlay(Circle().stroke(Color.ink, lineWidth: 2))
+        }
+        .accessibilityElement()
+        .accessibilityLabel(label)
+    }
+}
+
 private enum SummaryHero: Int, CaseIterable {
     case steps, heartRate, duration, intensity, sedentary, glucose
 }
@@ -123,6 +163,8 @@ private struct SummaryView: View {
     @State private var isFlinging = false
     @State private var glucoseText = ""
     @State private var savingGlucose = false
+    @State private var watch: WatchLink.State = .absent
+    @State private var showingGlucose = false
     @FocusState private var glucoseFocused: Bool
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
@@ -178,6 +220,9 @@ private struct SummaryView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshDay() }
         }
+        .sheet(isPresented: $showingGlucose) {
+            glucosePoster
+        }
     }
 
     private func refreshDay() {
@@ -185,6 +230,7 @@ private struct SummaryView: View {
         if let id = session.user?.id {
             graph.refreshToday(patientId: id)
         }
+        Task { watch = await WatchLink.current() }
     }
 
     private var weekday: String {
@@ -314,6 +360,7 @@ private struct SummaryView: View {
                     value: value,
                     recordedAt: now
                 )
+                showingGlucose = false
                 do {
                     try await GlucoseService(client: session.client()).add(value: value, recordedAt: now)
                     try graph.markGlucoseSynced(patientId: user.id)
@@ -328,86 +375,182 @@ private struct SummaryView: View {
 
     private func metricsDeck(_ today: TodayMetrics) -> some View {
         let current = page(for: today, hero: hero)
-        let peekStep = dragX < 0 ? 1 : -1
-        let peek = page(for: today, hero: neighbor(peekStep))
-        return GeometryReader { geo in
-            let width = geo.size.width
-            ZStack {
-                posterCard(peek)
-                posterCard(current)
-                    .offset(x: dragX)
-                    .rotationEffect(.degrees(Double(dragX / max(width, 1)) * 6))
+        let ahead = page(for: today, hero: neighbor(1))
+        let behind = page(for: today, hero: neighbor(-1))
+
+        return DippedStage(fill: Color.ink, scheme: .dark) {
+            GeometryReader { geo in
+                let cardWidth = geo.size.width
+                let cardHeight = min(cardWidth * 1.12, geo.size.height * 0.56)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    header
+
+                    ZStack(alignment: .bottom) {
+                        fanCard(behind, today: today, width: cardWidth, height: cardHeight)
+                            .rotationEffect(.degrees(-11), anchor: .bottom)
+                            .offset(y: 34)
+                            .scaleEffect(0.9)
+                            .opacity(0.75)
+                        fanCard(ahead, today: today, width: cardWidth, height: cardHeight)
+                            .rotationEffect(.degrees(-5.5), anchor: .bottom)
+                            .offset(y: 18)
+                            .scaleEffect(0.95)
+                            .opacity(0.9)
+                        fanCard(current, today: today, width: cardWidth, height: cardHeight)
+                            .offset(x: dragX)
+                            .rotationEffect(.degrees(Double(dragX / max(cardWidth, 1)) * 4), anchor: .bottom)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: cardHeight + 44)
+                    .padding(.top, 26)
+                    .contentShape(Rectangle())
+                    .highPriorityGesture(cardSwipe(width: geo.size.width))
+                    .onTapGesture {
+                        if errorText != nil { ingestWeek() }
+                    }
+
+                    Spacer(minLength: 0)
+
+                    HStack(spacing: 6) {
+                        ForEach(SummaryHero.allCases, id: \.self) { item in
+                            Capsule()
+                                .fill(item == hero ? Color.flare : Color.dusk)
+                                .frame(width: item == hero ? 18 : 6, height: 6)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .animation(.easeOut(duration: 0.2), value: hero)
+
+                    Text("Swipe for \(ahead.label.lowercased())")
+                        .font(AppFont.caption)
+                        .foregroundStyle(Color.mute)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
+
+                    Button {
+                        glucoseText = ""
+                        showingGlucose = true
+                    } label: {
+                        Text("Add glucose")
+                            .font(AppFont.button)
+                            .foregroundStyle(Color.ink)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .background(Color.card)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .padding(.top, 14)
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .highPriorityGesture(cardSwipe(width: width))
-            .onTapGesture {
-                if errorText != nil { ingestWeek() }
-            }
-        }
-        .ignoresSafeArea()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(current.accessibility)
-        .accessibilityAdjustableAction { direction in
-            switch direction {
-            case .increment: cycle(1)
-            case .decrement: cycle(-1)
-            default: break
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(current.accessibility)
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment: cycle(1)
+                case .decrement: cycle(-1)
+                default: break
+                }
             }
         }
     }
 
-    private func posterCard(_ page: HeroPage) -> some View {
-        DippedStage(fill: page.fill, scheme: page.scheme) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(weekday)
-                    .font(AppFont.bodyMedium)
-                    .foregroundStyle(page.ink)
-                Spacer()
-                Image(systemName: page.icon)
-                    .font(.system(size: 36, weight: .regular))
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(page.number)
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 10)
-                    .accessibilityHidden(true)
+    private var header: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Today")
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(Color.card)
+                Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                    .font(AppFont.caption)
+                    .foregroundStyle(Color.mute)
+            }
+            Spacer()
+            WatchBadge(state: watch)
+        }
+    }
+
+    private func fanCard(_ page: HeroPage, today: TodayMetrics, width: CGFloat, height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(page.label)
+                .font(AppFont.chip)
+                .tracking(2.2)
+                .textCase(.uppercase)
+                .foregroundStyle(page.ink.opacity(0.55))
+
+            HStack(alignment: .firstTextBaseline, spacing: 7) {
                 Text(page.value)
-                    .font(AppFont.poster)
+                    .font(.custom("BricolageGrotesque-ExtraBold", size: page.value.count > 4 ? 66 : 104))
+                    .tracking(-5)
                     .foregroundStyle(page.number)
-                    .tracking(AppTracking.poster)
-                    .minimumScaleFactor(0.25)
                     .lineLimit(1)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.4)
                 if let unit = page.unit {
                     Text(unit)
                         .font(AppFont.unit)
-                        .foregroundStyle(page.ink)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 4)
+                        .foregroundStyle(page.ink.opacity(0.6))
                 }
-                Spacer()
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(page.leftover)
-                        .font(AppFont.body)
-                        .foregroundStyle(page.ink)
-                    if ingesting || graph.catchingUp {
-                        Text("Updating…")
-                            .font(AppFont.caption)
-                            .foregroundStyle(page.ink)
-                    }
-                    if let errorText {
-                        Text(errorText)
-                            .font(AppFont.captionMedium)
-                            .foregroundStyle(page.scheme == .dark ? Color.alert : Color.ink)
-                        Text("Try again")
-                            .font(AppFont.bodyMedium)
-                            .foregroundStyle(page.ink)
-                    }
+            }
+            .padding(.top, 6)
+
+            HStack(spacing: 7) {
+                Circle()
+                    .fill(page.ink)
+                    .frame(width: 7, height: 7)
+                Text(page.leftover)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(page.ink.opacity(0.72))
+                    .lineLimit(2)
+            }
+            .padding(.top, 12)
+
+            Spacer(minLength: 0)
+
+            if ingesting || graph.catchingUp {
+                Text("Updating…")
+                    .font(AppFont.caption)
+                    .foregroundStyle(page.ink.opacity(0.7))
+            }
+            if let errorText {
+                Text(errorText)
+                    .font(AppFont.captionMedium)
+                    .foregroundStyle(page.scheme == .dark ? Color.alert : Color.ink)
+                    .lineLimit(2)
+            }
+
+            if page.label == "Glucose" {
+                HStack(spacing: 0) {
+                    contextStat("Steps", today.steps.formatted(), ink: page.ink)
+                    contextStat("Active", "\(today.durationMinutes) min", ink: page.ink)
+                    contextStat("Heart", today.heartRate.map { "\($0) bpm" } ?? "—", ink: page.ink)
+                }
+                .padding(.top, 14)
+                .overlay(alignment: .top) {
+                    Rectangle()
+                        .fill(page.ink.opacity(0.16))
+                        .frame(height: 1)
                 }
             }
         }
+        .padding(22)
+        .frame(width: width, height: height, alignment: .topLeading)
+        .background(page.fill)
+        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+    }
+
+    private func contextStat(_ label: String, _ value: String, ink: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(AppFont.chip)
+                .tracking(1.4)
+                .textCase(.uppercase)
+                .foregroundStyle(ink.opacity(0.5))
+            Text(value)
+                .font(.custom("BricolageGrotesque-ExtraBold", size: 20))
+                .tracking(-0.5)
+                .foregroundStyle(ink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func cardSwipe(width: CGFloat) -> some Gesture {
@@ -502,6 +645,7 @@ private struct SummaryView: View {
     }
 
     private struct HeroPage {
+        var label: String
         var fill: Color
         var scheme: ColorScheme
         var ink: Color
@@ -519,6 +663,7 @@ private struct SummaryView: View {
         switch hero {
         case .steps:
             return HeroPage(
+                label: "Steps",
                 fill: Color.flare,
                 scheme: .light,
                 ink: Color.ink,
@@ -531,6 +676,7 @@ private struct SummaryView: View {
             )
         case .heartRate:
             return HeroPage(
+                label: "Heart rate",
                 fill: Color.info,
                 scheme: .light,
                 ink: Color.ink,
@@ -543,6 +689,7 @@ private struct SummaryView: View {
             )
         case .duration:
             return HeroPage(
+                label: "Exercise",
                 fill: Color.acid,
                 scheme: .light,
                 ink: Color.ink,
@@ -555,6 +702,7 @@ private struct SummaryView: View {
             )
         case .intensity:
             return HeroPage(
+                label: "Intensity",
                 fill: Color.aurora,
                 scheme: .light,
                 ink: Color.ink,
@@ -567,6 +715,7 @@ private struct SummaryView: View {
             )
         case .sedentary:
             return HeroPage(
+                label: "Sedentary",
                 fill: Color.warn,
                 scheme: .light,
                 ink: Color.ink,
@@ -579,6 +728,7 @@ private struct SummaryView: View {
             )
         case .glucose:
             return HeroPage(
+                label: "Glucose",
                 fill: Color.card,
                 scheme: .light,
                 ink: Color.ink,

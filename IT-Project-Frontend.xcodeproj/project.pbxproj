@@ -15,6 +15,7 @@
 		A1F0PEOPLE01VIEW01B01 /* PeopleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0PEOPLE01VIEW01F01 /* PeopleView.swift */; };
 		0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA67845FC704505A765B22E /* ActivityService.swift */; };
 		DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */; };
+		A1F0WATCH01LINK01B01 /* WatchLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0WATCH01LINK01F01 /* WatchLink.swift */; };
 		A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0PROF01SERV01F01 /* ProfileService.swift */; };
 		7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162AC86725A34C50A3F88B4A /* GlucoseService.swift */; };
 		74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675C44D70254391BA0D3D80 /* AnalysisService.swift */; };
@@ -50,6 +51,7 @@
 		A1F0PEOPLE01VIEW01F01 /* PeopleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleView.swift; sourceTree = "<group>"; };
 		6EA67845FC704505A765B22E /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 		F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		A1F0WATCH01LINK01F01 /* WatchLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLink.swift; sourceTree = "<group>"; };
 		A1F0PROF01SERV01F01 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		162AC86725A34C50A3F88B4A /* GlucoseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseService.swift; sourceTree = "<group>"; };
 		9675C44D70254391BA0D3D80 /* AnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisService.swift; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 			children = (
 				F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */,
 				A1F0PROF01SERV01F01 /* ProfileService.swift */,
+				A1F0WATCH01LINK01F01 /* WatchLink.swift */,
 			);
 			path = HealthKit;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 				A1F0PEOPLE01VIEW01B01 /* PeopleView.swift in Sources */,
 				0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */,
 				DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */,
+				A1F0WATCH01LINK01B01 /* WatchLink.swift in Sources */,
 				A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */,
 				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,
 				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,
@@ -387,7 +391,7 @@
 				CODE_SIGN_ENTITLEMENTS = ITProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4BRYH5A8P5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -420,7 +424,7 @@
 				CODE_SIGN_ENTITLEMENTS = ITProject.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4BRYH5A8P5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
