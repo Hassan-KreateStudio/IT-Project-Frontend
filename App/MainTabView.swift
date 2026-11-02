@@ -164,7 +164,6 @@ private struct SummaryView: View {
     @State private var glucoseText = ""
     @State private var savingGlucose = false
     @State private var watch: WatchLink.State = .absent
-    @State private var showingGlucose = false
     @FocusState private var glucoseFocused: Bool
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
@@ -219,11 +218,7 @@ private struct SummaryView: View {
         .onAppear(perform: refreshDay)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshDay() }
-        }
-        .sheet(isPresented: $showingGlucose) {
-            glucosePoster
-        }
-    }
+        }    }
 
     private func refreshDay() {
         prompted = health.hasPrompted
@@ -360,7 +355,6 @@ private struct SummaryView: View {
                     value: value,
                     recordedAt: now
                 )
-                showingGlucose = false
                 do {
                     try await GlucoseService(client: session.client()).add(value: value, recordedAt: now)
                     try graph.markGlucoseSynced(patientId: user.id)
@@ -410,8 +404,6 @@ private struct SummaryView: View {
                         if errorText != nil { ingestWeek() }
                     }
 
-                    Spacer(minLength: 0)
-
                     HStack(spacing: 6) {
                         ForEach(SummaryHero.allCases, id: \.self) { item in
                             Capsule()
@@ -427,20 +419,6 @@ private struct SummaryView: View {
                         .foregroundStyle(Color.mute)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 8)
-
-                    Button {
-                        glucoseText = ""
-                        showingGlucose = true
-                    } label: {
-                        Text("Add glucose")
-                            .font(AppFont.button)
-                            .foregroundStyle(Color.ink)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
-                            .background(Color.card)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    }
-                    .padding(.top, 14)
                 }
             }
             .accessibilityElement(children: .contain)
