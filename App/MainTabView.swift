@@ -78,6 +78,325 @@ struct MainTabView: View {
     }
 }
 
+
+private struct SummaryScreen: View {
+    var today: TodayMetrics
+    var week: [WeekPoint]
+    var latest: GlucosePoint?
+    var watch: WatchLink.State
+    var onBack: () -> Void
+
+    private var average: Double? {
+        let values = week.compactMap(\.glucose)
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private var inRangePercent: Int? {
+        let values = week.compactMap(\.glucose)
+        guard !values.isEmpty else { return nil }
+        let good = values.filter { (70 ... 180).contains($0) }.count
+        return Int((Double(good) / Double(values.count) * 100).rounded())
+    }
+
+    private var readingStatus: (String, Color) {
+        guard let value = latest?.value else { return ("Not logged", Color.mute) }
+        switch value {
+        case ..<70: return ("Low", Color.warn)
+        case 70 ... 180: return ("In range", Color.acid)
+        default: return ("High", Color.alert)
+        }
+    }
+
+    var body: some View {
+        DippedStage(fill: Color.ink, scheme: .dark) {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Summary")
+                                .font(AppFont.largeTitle)
+                                .foregroundStyle(Color.card)
+                            Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                                .font(AppFont.caption)
+                                .foregroundStyle(Color.mute)
+                        }
+                        Spacer()
+                        WatchBadge(state: watch)
+                    }
+                    .padding(.bottom, 14)
+
+                    chartCard
+                    kpiRow.padding(.top, 9)
+                    sectionLabel("Today").padding(.top, 16)
+                    todayCard
+                    sectionLabel("What to try next").padding(.top, 16)
+                    actionsCard
+                    Color.clear.frame(height: 10)
+                }
+            }
+            .gesture(
+                DragGesture(minimumDistance: 24).onEnded { value in
+                    if value.translation.width > 90 { onBack() }
+                }
+            )
+        }
+    }
+
+    private var chartCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Average glucose · 7 days")
+                        .font(AppFont.chip)
+                        .tracking(1.6)
+                        .textCase(.uppercase)
+                        .foregroundStyle(Color.mute)
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text(average.map { String(Int($0.rounded())) } ?? "—")
+                            .font(.custom("BricolageGrotesque-ExtraBold", size: 44))
+                            .tracking(-2)
+                            .foregroundStyle(Color.flare)
+                        Text("mg/dL")
+                            .font(AppFont.caption)
+                            .foregroundStyle(Color.mute)
+                    }
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 6) {
+                    Text("In range")
+                        .font(AppFont.chip)
+                        .tracking(1.6)
+                        .textCase(.uppercase)
+                        .foregroundStyle(Color.mute)
+                    Text(inRangePercent.map { "\($0)%" } ?? "—")
+                        .font(.custom("BricolageGrotesque-ExtraBold", size: 26))
+                        .tracking(-0.8)
+                        .foregroundStyle(Color.acid)
+                    Text("target 70–180")
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.mute)
+                }
+            }
+
+            GlucoseWeekChart(week: week)
+                .frame(height: 132)
+                .padding(.top, 12)
+
+            HStack(spacing: 0) {
+                ForEach(week) { point in
+                    Text(point.date.formatted(.dateTime.weekday(.narrow)))
+                        .font(AppFont.chip)
+                        .foregroundStyle(Calendar.current.isDateInToday(point.date) ? Color.flare : Color.mute)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.top, 5)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.night)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var kpiRow: some View {
+        HStack(spacing: 8) {
+            kpi("Steps", today.steps.formatted(), Color.flare)
+            kpi("Exercise", "\(today.durationMinutes)m", Color.acid)
+            kpi("Heart", today.heartRate.map(String.init) ?? "—", Color.aurora)
+            kpi("Sitting", "\(today.sedentaryMinutes / 60)h", Color.warn)
+        }
+    }
+
+    private func kpi(_ label: String, _ value: String, _ fill: Color) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(AppFont.chip)
+                .tracking(1.1)
+                .textCase(.uppercase)
+                .foregroundStyle(Color.ink.opacity(0.55))
+            Text(value)
+                .font(.custom("BricolageGrotesque-ExtraBold", size: 19))
+                .tracking(-0.5)
+                .foregroundStyle(Color.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
+        .background(fill)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var todayCard: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(readingStatus.1)
+                .frame(width: 9, height: 9)
+            if let latest {
+                Text(format(latest.value))
+                    .font(.custom("BricolageGrotesque-ExtraBold", size: 26))
+                    .tracking(-1)
+                    .foregroundStyle(readingStatus.1)
+                Text("mg/dL")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+                Text(readingStatus.0)
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute.opacity(0.9))
+                Spacer()
+                Text(latest.recordedAt.formatted(date: .omitted, time: .shortened))
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+            } else {
+                Text("No reading yet")
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.mute)
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 15)
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.night)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var actionsCard: some View {
+        VStack(spacing: 0) {
+            actionRow("bolt.fill", Color.flare, "Walk 15 minutes after lunch", "Your only spike this week followed a sit-down meal.", last: false)
+            actionRow("heart.fill", Color.aurora, "Keep logging the evening reading", "Three readings a day is what makes this line trustworthy.", last: false)
+            actionRow("moon.fill", Color.acid, "Log one more reading before bed", "Your line stops at \(latest.map { $0.recordedAt.formatted(date: .omitted, time: .shortened) } ?? "today") — the night is the blind spot.", last: true)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 2)
+        .background(Color.night)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func actionRow(_ icon: String, _ tint: Color, _ title: String, _ detail: String, last: Bool) -> some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.ink)
+                    .frame(width: 29, height: 29)
+                    .background(tint)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(AppFont.bodyMedium)
+                        .foregroundStyle(Color.card)
+                    Text(detail)
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.mute)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 11)
+            if !last {
+                Rectangle()
+                    .fill(Color.dusk)
+                    .frame(height: 1)
+                    .padding(.leading, 39)
+            }
+        }
+    }
+
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(AppFont.chip)
+            .tracking(1.8)
+            .textCase(.uppercase)
+            .foregroundStyle(Color.mute)
+            .padding(.bottom, 7)
+    }
+
+    private func format(_ value: Double) -> String {
+        value.rounded() == value ? String(Int(value)) : String(format: "%.1f", value)
+    }
+}
+
+private struct GlucoseWeekChart: View {
+    var week: [WeekPoint]
+
+    private let low: Double = 50
+    private let high: Double = 220
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = geo.size.height
+            let step = week.count > 1 ? width / CGFloat(week.count - 1) : width
+            let points = week.enumerated().compactMap { index, point -> CGPoint? in
+                guard let value = point.glucose else { return nil }
+                return CGPoint(x: CGFloat(index) * step, y: y(value, height: height))
+            }
+
+            ZStack(alignment: .topLeading) {
+                Rectangle()
+                    .fill(Color.acid.opacity(0.07))
+                    .frame(width: width, height: max(0, y(70, height: height) - y(180, height: height)))
+                    .offset(y: y(180, height: height))
+
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: y(180, height: height)))
+                    path.addLine(to: CGPoint(x: width, y: y(180, height: height)))
+                    path.move(to: CGPoint(x: 0, y: y(70, height: height)))
+                    path.addLine(to: CGPoint(x: width, y: y(70, height: height)))
+                }
+                .stroke(Color.acid.opacity(0.25), style: StrokeStyle(lineWidth: 1, dash: [4, 5]))
+
+                if points.count > 1 {
+                    areaPath(points, height: height)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.flare.opacity(0.32), Color.flare.opacity(0)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    linePath(points)
+                        .stroke(Color.flare, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                }
+
+                if let last = points.last {
+                    Circle()
+                        .fill(Color.flare.opacity(0.22))
+                        .frame(width: 22, height: 22)
+                        .position(last)
+                    Circle()
+                        .fill(Color.flare)
+                        .frame(width: 11, height: 11)
+                        .position(last)
+                }
+            }
+        }
+    }
+
+    private func y(_ value: Double, height: CGFloat) -> CGFloat {
+        let clamped = min(max(value, low), high)
+        return height * (1 - CGFloat((clamped - low) / (high - low)))
+    }
+
+    private func linePath(_ points: [CGPoint]) -> Path {
+        var path = Path()
+        path.move(to: points[0])
+        for point in points.dropFirst() { path.addLine(to: point) }
+        return path
+    }
+
+    private func areaPath(_ points: [CGPoint], height: CGFloat) -> Path {
+        var path = linePath(points)
+        path.addLine(to: CGPoint(x: points[points.count - 1].x, y: height))
+        path.addLine(to: CGPoint(x: points[0].x, y: height))
+        path.closeSubpath()
+        return path
+    }
+}
+
 private struct WatchBadge: View {
     var state: WatchLink.State
 
@@ -138,6 +457,7 @@ private struct SummaryView: View {
     @State private var savingGlucose = false
     @State private var watch: WatchLink.State = .absent
     @State private var watchDay: TodayMetrics?
+    @State private var showingSummary = false
     @State private var showingGlucose = false
     @FocusState private var glucoseFocused: Bool
 
@@ -178,7 +498,21 @@ private struct SummaryView: View {
                     leftover: "Reading Health on this iPhone."
                 )
             } else if let today = shownToday {
-                metricsDeck(today)
+                ZStack {
+                    if showingSummary {
+                        summaryScreen(today)
+                            .transition(.asymmetric(
+                                insertion: .scale(scale: 0.92).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                    } else {
+                        metricsDeck(today)
+                            .transition(.asymmetric(
+                                insertion: .opacity,
+                                removal: .scale(scale: 0.92).combined(with: .opacity)
+                            ))
+                    }
+                }
             } else {
                 messagePoster(
                     fill: Color.flare,
@@ -197,6 +531,21 @@ private struct SummaryView: View {
         .sheet(isPresented: $showingGlucose) {
             glucosePoster
         }
+    }
+
+    private func summaryScreen(_ today: TodayMetrics) -> some View {
+        let patientId = session.user?.id ?? ""
+        return SummaryScreen(
+            today: today,
+            week: graph.week(patientId: patientId),
+            latest: graph.latestReading(patientId: patientId),
+            watch: watch,
+            onBack: {
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.9)) {
+                    showingSummary = false
+                }
+            }
+        )
     }
 
     /// Watch numbers for the cards, with glucose always taken from the local
@@ -592,8 +941,12 @@ private struct SummaryView: View {
             var reset = Transaction()
             reset.disablesAnimations = true
             withTransaction(reset) {
-                cycle(step)
                 dragX = 0
+            }
+            if cycle(step) {
+                withAnimation(.spring(response: 0.46, dampingFraction: 0.88)) {
+                    showingSummary = true
+                }
             }
             isFlinging = false
         }
@@ -744,14 +1097,21 @@ private struct SummaryView: View {
         value.rounded() == value ? String(Int(value)) : String(format: "%.1f", value)
     }
 
-    private func cycle(_ step: Int) {
+    /// Steps through the deck. Past the last card it hands off to the summary
+    /// screen instead of wrapping; every other swipe keeps the ring.
+    @discardableResult
+    private func cycle(_ step: Int) -> Bool {
         if errorText != nil {
             ingestWeek()
-            return
+            return false
         }
         let all = SummaryHero.allCases
+        if step > 0, hero == all.last {
+            return true
+        }
         let next = (hero.rawValue + step + all.count) % all.count
         hero = all[next]
+        return false
     }
 
     private func intensityLabel(_ raw: String) -> String {

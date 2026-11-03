@@ -11,6 +11,18 @@ struct TodayMetrics: Equatable {
     var glucose: Double?
 }
 
+struct WeekPoint: Identifiable, Equatable {
+    var id: Date { date }
+    var date: Date
+    var steps: Int
+    var glucose: Double?
+}
+
+struct GlucosePoint: Equatable {
+    var value: Double
+    var recordedAt: Date
+}
+
 struct PendingGlucose: Equatable {
     var value: Double
     var recordedAt: Date
@@ -134,6 +146,37 @@ final class GraphStore: ObservableObject {
             today = nil
             Log.graph("no today activity yet glucose=\(todayGlucose.map { String($0) } ?? "—")")
         }
+    }
+
+    /// Last `days` calendar days for one patient, oldest first. Days with no
+    /// activity still appear so the chart keeps an even time axis.
+    func week(patientId: String, days: Int = 7, now: Date = Date()) -> [WeekPoint] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        guard let start = calendar.date(byAdding: .day, value: -(days - 1), to: today) else { return [] }
+
+        let descriptor = FetchDescriptor<Day>(
+            predicate: #Predicate<Day> { $0.date >= start },
+            sortBy: [SortDescriptor(\.date)]
+        )
+        let stored = (try? context.fetch(descriptor)) ?? []
+
+        return (0 ..< days).compactMap { offset in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
+            let day = stored.first {
+                $0.person?.patientId == patientId && calendar.isDate($0.date, inSameDayAs: date)
+            }
+            return WeekPoint(
+                date: date,
+                steps: day?.activity?.stepCount ?? 0,
+                glucose: day?.glucose?.value
+            )
+        }
+    }
+
+    func latestReading(patientId: String) -> GlucosePoint? {
+        guard let reading = todayDay(patientId: patientId)?.glucose else { return nil }
+        return GlucosePoint(value: reading.value, recordedAt: reading.recordedAt)
     }
 
     private func todayDay(patientId: String) -> Day? {
