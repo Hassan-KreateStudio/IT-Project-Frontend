@@ -83,7 +83,7 @@ struct CaregiverSummaryView: View {
         return "Waiting for \(names) to accept."
     }
 
-    private var warnings: [(String, CaregiverDashboard.Alert)] {
+    private var warnings: [(String, DashboardSnapshot.Alert)] {
         cards.flatMap { card in card.warnings.map { (card.name, $0) } }
     }
 
@@ -190,7 +190,7 @@ struct CaregiverSummaryView: View {
         .clipShape(Capsule())
     }
 
-    private func warningRow(_ name: String, _ alert: CaregiverDashboard.Alert) -> some View {
+    private func warningRow(_ name: String, _ alert: DashboardSnapshot.Alert) -> some View {
         let tint = alert.severity == "warning" ? Color.alert : Color.warn
         return HStack(spacing: 11) {
             Image(systemName: "exclamationmark.circle.fill")
@@ -238,7 +238,7 @@ struct CaregiverSummaryView: View {
         busy = false
     }
 
-    private func card(for patient: User, dashboard: CaregiverDashboard?) -> WatchCard {
+    private func card(for patient: User, dashboard: DashboardSnapshot?) -> WatchCard {
         let glucose = dashboard?.glucoseTrends.last?.averageValue
         let steps = dashboard?.activityTrends.last?.stepCount
         let alerts = dashboard?.alerts ?? []
@@ -300,5 +300,5 @@ struct WatchCard: Identifiable {
     var tinted: Bool
     var detail: String
     var stepsToday: Int?
-    var warnings: [CaregiverDashboard.Alert]
+    var warnings: [DashboardSnapshot.Alert]
 }

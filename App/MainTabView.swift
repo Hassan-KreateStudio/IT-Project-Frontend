@@ -457,6 +457,8 @@ private struct SummaryView: View {
     @State private var watch: WatchLink.State = .absent
     @State private var watchDay: TodayMetrics?
     @State private var showingSummary = false
+    @State private var apiWeek: [WeekPoint] = []
+    @State private var healthAccessOff = false
     @State private var showingGlucose = false
     @FocusState private var glucoseFocused: Bool
 
@@ -520,6 +522,9 @@ private struct SummaryView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshDay() }
         }
+        .onChange(of: showingSummary) { _, shown in
+            if shown { Task { await loadSummaryWeek() } }
+        }
         .sheet(isPresented: $showingGlucose) {
             glucosePoster
         }
@@ -527,9 +532,10 @@ private struct SummaryView: View {
 
     private func summaryScreen(_ today: TodayMetrics) -> some View {
         let patientId = session.user?.id ?? ""
+        let fallback = graph.week(patientId: patientId)
         return SummaryScreen(
             today: today,
-            week: graph.week(patientId: patientId),
+            week: apiWeek.isEmpty ? fallback : apiWeek,
             latest: graph.latestReading(patientId: patientId),
             watch: watch,
             onBack: {
@@ -554,6 +560,7 @@ private struct SummaryView: View {
             graph.refreshToday(patientId: id)
         }
         Task {
+            if showingSummary { await loadSummaryWeek() }
             watch = await WatchLink.current()
             if watch == .absent {
                 watchDay = nil
@@ -569,6 +576,17 @@ private struct SummaryView: View {
             } else {
                 watchDay = nil
             }
+            let wouldPrompt = await health.authorizationWouldPrompt()
+            healthAccessOff = health.hasPrompted && !wouldPrompt && graph.today == nil
+        }
+    }
+
+    /// The summary's seven-day series comes from the server so two devices on
+    /// the same account agree. Local data is only a fallback.
+    private func loadSummaryWeek() async {
+        guard apiWeek.isEmpty else { return }
+        if let snapshot = try? await AnalysisService(client: session.client()).dashboard() {
+            apiWeek = snapshot.week()
         }
     }
 
@@ -723,6 +741,10 @@ private struct SummaryView: View {
                 let cardHeight = min(cardWidth * 1.12, geo.size.height * 0.56)
 
                 VStack(alignment: .leading, spacing: 0) {
+                    if healthAccessOff {
+                        healthBanner.padding(.bottom, 10)
+                    }
+
                     header
 
                     ZStack(alignment: .bottom) {
@@ -792,6 +814,39 @@ private struct SummaryView: View {
                 }
             }
         }
+    }
+
+    private var healthBanner: some View {
+        Button {
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "heart.slash.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.ink)
+                    .frame(width: 28, height: 28)
+                    .background(Color.warn)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Health access is off")
+                        .font(AppFont.bodyMedium)
+                        .foregroundStyle(Color.card)
+                    Text("Tap to allow steps and heart rate")
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.mute)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color.mute)
+            }
+            .padding(11)
+            .background(Color.night)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var header: some View {

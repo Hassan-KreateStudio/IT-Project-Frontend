@@ -42,6 +42,18 @@ struct HealthKitService {
         UserDefaults.standard.bool(forKey: Self.profilePromptedKey)
     }
 
+    /// True while iOS would still show the permission sheet. Once this is
+    /// false the decision is locked in, so an empty graph means access is off
+    /// and the only way back is Settings.
+    func authorizationWouldPrompt() async -> Bool {
+        guard Self.isAvailable else { return false }
+        return await withCheckedContinuation { continuation in
+            store.getRequestStatusForAuthorization(toShare: [], read: Self.readTypes) { status, _ in
+                continuation.resume(returning: status == .shouldRequest)
+            }
+        }
+    }
+
     /// First Allow: activity + date of birth, height, and weight in one Health sheet.
     @MainActor
     func requestAccess() async throws {

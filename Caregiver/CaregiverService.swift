@@ -127,9 +127,9 @@ struct CaregiverService {
 
     /// Seven-day dashboard for one monitored patient. Alerts carry no timestamp
     /// on the server, so the date lives in the message text.
-    func dashboard(patientId: String, days: Int = 7) async throws -> CaregiverDashboard {
+    func dashboard(patientId: String, days: Int = 7) async throws -> DashboardSnapshot {
         struct Data: Decodable {
-            let patientDashboard: CaregiverDashboard
+            let patientDashboard: DashboardSnapshot
         }
 
         let to = Date()
@@ -159,34 +159,3 @@ struct CaregiverService {
     }
 }
 
-struct CaregiverDashboard: Decodable {
-    struct Summary: Decodable {
-        var totalSteps: Int
-        var averageGlucose: Double?
-        var glucoseReadingCount: Int
-        var totalActiveMinutes: Int
-    }
-
-    struct GlucoseTrend: Decodable {
-        var date: String
-        var averageValue: Double
-        var readingCount: Int
-    }
-
-    struct ActivityTrend: Decodable {
-        var date: String
-        var stepCount: Int
-        var durationMinutes: Int
-    }
-
-    struct Alert: Decodable {
-        var code: String
-        var message: String
-        var severity: String
-    }
-
-    var summary: Summary
-    var glucoseTrends: [GlucoseTrend]
-    var activityTrends: [ActivityTrend]
-    var alerts: [Alert]
-}

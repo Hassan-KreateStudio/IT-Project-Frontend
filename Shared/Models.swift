@@ -22,3 +22,36 @@ struct CaregiverRequest: Codable, Identifiable {
         return formatter.date(from: requestedAt) ?? ISO8601DateFormatter().date(from: requestedAt)
     }
 }
+
+/// The `dashboard` / `patientDashboard` payload. Both summary screens use it.
+struct DashboardSnapshot: Decodable {
+    struct Summary: Decodable {
+        var totalSteps: Int
+        var averageGlucose: Double?
+        var glucoseReadingCount: Int
+        var totalActiveMinutes: Int
+    }
+
+    struct GlucoseTrend: Decodable {
+        var date: String
+        var averageValue: Double
+        var readingCount: Int
+    }
+
+    struct ActivityTrend: Decodable {
+        var date: String
+        var stepCount: Int
+        var durationMinutes: Int
+    }
+
+    struct Alert: Decodable {
+        var code: String
+        var message: String
+        var severity: String
+    }
+
+    var summary: Summary
+    var glucoseTrends: [GlucoseTrend]
+    var activityTrends: [ActivityTrend]
+    var alerts: [Alert]
+}
