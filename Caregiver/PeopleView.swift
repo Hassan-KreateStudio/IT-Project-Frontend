@@ -20,62 +20,179 @@ struct PeopleView: View {
 private struct PatientPeopleView: View {
     @EnvironmentObject private var session: SessionStore
     @State private var caregivers: [User] = []
+    @State private var requests: [CaregiverRequest] = []
     @State private var busy = false
+    @State private var answering: String?
     @State private var errorText: String?
 
     var body: some View {
         DippedStage(fill: Color.ink, scheme: .dark) {
-            VStack(spacing: 16) {
-                Text("Sharing")
-                    .font(AppFont.bodyMedium)
-                    .foregroundStyle(Color.card)
-                Text("They add you. You don’t invite from here.")
-                    .font(AppFont.caption)
-                    .foregroundStyle(Color.mute)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Sharing")
+                            .font(AppFont.largeTitle)
+                            .foregroundStyle(Color.card)
+                        Text("You decide who sees your day.")
+                            .font(AppFont.caption)
+                            .foregroundStyle(Color.mute)
+                    }
+                    .padding(.bottom, 16)
 
-                if let errorText {
-                    Text(errorText)
-                        .font(AppFont.captionMedium)
-                        .foregroundStyle(Color.alert)
-                    Button("Try again", action: load)
-                        .font(AppFont.bodyMedium)
-                        .foregroundStyle(Color.flare)
-                }
+                    if let errorText {
+                        Text(errorText)
+                            .font(AppFont.captionMedium)
+                            .foregroundStyle(Color.alert)
+                            .padding(.bottom, 12)
+                        Button("Try again", action: load)
+                            .font(AppFont.bodyMedium)
+                            .foregroundStyle(Color.flare)
+                            .padding(.bottom, 12)
+                    }
 
-                if busy && caregivers.isEmpty {
-                    Spacer()
-                    Text("Wait")
-                        .font(AppFont.poster)
-                        .foregroundStyle(Color.card)
-                        .tracking(AppTracking.poster)
-                        .minimumScaleFactor(0.3)
-                        .lineLimit(1)
-                    Spacer()
-                } else if caregivers.isEmpty && errorText == nil {
-                    Spacer()
-                    Text("None")
-                        .font(AppFont.poster)
-                        .foregroundStyle(Color.card)
-                        .tracking(AppTracking.poster)
-                        .minimumScaleFactor(0.3)
-                        .lineLimit(1)
-                    Text("Nobody is watching yet.")
-                        .font(AppFont.body)
-                        .foregroundStyle(Color.mute)
-                    Spacer()
-                } else {
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(Array(caregivers.enumerated()), id: \.element.id) { index, person in
-                                personSlab(person, index: index)
-                            }
+                    if !requests.isEmpty {
+                        sectionLabel("Waiting on you")
+                        ForEach(requests) { request in
+                            requestCard(request)
+                                .padding(.bottom, 10)
                         }
                     }
-                    .scrollIndicators(.hidden)
+
+                    sectionLabel(requests.isEmpty ? "Watching you" : "Already watching")
+
+                    if busy && caregivers.isEmpty {
+                        Text("Checking…")
+                            .font(AppFont.body)
+                            .foregroundStyle(Color.mute)
+                            .padding(.vertical, 20)
+                    } else if caregivers.isEmpty {
+                        Text("Nobody is watching yet.")
+                            .font(AppFont.body)
+                            .foregroundStyle(Color.mute)
+                            .padding(.vertical, 20)
+                    } else {
+                        ForEach(caregivers) { person in
+                            caregiverRow(person)
+                                .padding(.bottom, 8)
+                        }
+                        Text("Hold a name to stop sharing.")
+                            .font(AppFont.chip)
+                            .foregroundStyle(Color.mute)
+                            .padding(.top, 6)
+                    }
                 }
             }
         }
         .onAppear(perform: load)
+    }
+
+    private func requestCard(_ request: CaregiverRequest) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Text(initials(request.caregiver.displayName))
+                    .font(.custom("BricolageGrotesque-ExtraBold", size: 13))
+                    .foregroundStyle(Color.ink)
+                    .frame(width: 38, height: 38)
+                    .background(Color.acid)
+                    .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(request.caregiver.displayName)
+                        .font(.custom("BricolageGrotesque-ExtraBold", size: 17))
+                        .foregroundStyle(Color.card)
+                    Text(askedPhrase(request))
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.mute)
+                }
+                Spacer()
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    answer(request, accept: false)
+                } label: {
+                    Text("Decline")
+                        .font(AppFont.button)
+                        .foregroundStyle(Color.card)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.dusk)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .disabled(answering != nil)
+
+                Button {
+                    answer(request, accept: true)
+                } label: {
+                    Text(answering == request.id ? "Saving…" : "Accept")
+                        .font(AppFont.button)
+                        .foregroundStyle(Color.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.acid)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .disabled(answering != nil)
+            }
+        }
+        .padding(15)
+        .background(Color.night)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func caregiverRow(_ person: User) -> some View {
+        HStack(spacing: 10) {
+            Text(initials(person.displayName))
+                .font(.custom("BricolageGrotesque-ExtraBold", size: 12))
+                .foregroundStyle(Color.card)
+                .frame(width: 34, height: 34)
+                .background(Color.dusk)
+                .clipShape(Circle())
+            VStack(alignment: .leading, spacing: 1) {
+                Text(person.displayName)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.card)
+                Text("Can see your day")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+            }
+            Spacer()
+            Button(role: .destructive) {
+                revoke(person)
+            } label: {
+                Text("Remove")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.alert)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(13)
+        .background(Color.night)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contextMenu {
+            Button("Stop sharing", role: .destructive) { revoke(person) }
+        }
+    }
+
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(AppFont.chip)
+            .tracking(1.8)
+            .textCase(.uppercase)
+            .foregroundStyle(Color.mute)
+            .padding(.bottom, 8)
+    }
+
+    private func askedPhrase(_ request: CaregiverRequest) -> String {
+        guard let date = request.askedAt else { return "Wants to see your day" }
+        let minutes = Int(Date().timeIntervalSince(date) / 60)
+        if minutes < 60 { return "Asked \(max(minutes, 1))m ago" }
+        let hours = minutes / 60
+        if hours < 24 { return "Asked \(hours)h ago" }
+        return "Asked \(hours / 24)d ago"
+    }
+
+    private func initials(_ name: String) -> String {
+        name.split(separator: " ").prefix(2).compactMap { $0.first.map(String.init) }.joined().uppercased()
     }
 
     private func load() {
@@ -84,7 +201,42 @@ private struct PatientPeopleView: View {
         Task {
             defer { busy = false }
             do {
-                caregivers = try await CaregiverService(client: session.client()).caregivers()
+                let service = CaregiverService(client: session.client())
+                async let watchers = service.caregivers()
+                async let pending = service.caregiverRequests()
+                caregivers = try await watchers
+                requests = try await pending
+            } catch {
+                errorText = error.localizedDescription
+            }
+        }
+    }
+
+    private func answer(_ request: CaregiverRequest, accept: Bool) {
+        errorText = nil
+        answering = request.id
+        Task {
+            defer { answering = nil }
+            do {
+                try await CaregiverService(client: session.client())
+                    .respond(caregiverId: request.caregiver.id, accept: accept)
+                requests.removeAll { $0.id == request.id }
+                if accept {
+                    caregivers.append(request.caregiver)
+                    caregivers.sort { $0.displayName < $1.displayName }
+                }
+            } catch {
+                errorText = error.localizedDescription
+            }
+        }
+    }
+
+    private func revoke(_ person: User) {
+        errorText = nil
+        Task {
+            do {
+                try await CaregiverService(client: session.client()).revoke(caregiverId: person.id)
+                caregivers.removeAll { $0.id == person.id }
             } catch {
                 errorText = error.localizedDescription
             }
@@ -96,6 +248,7 @@ private struct CaregiverPeopleView: View {
     @EnvironmentObject private var session: SessionStore
     @State private var email = ""
     @State private var patients: [User] = []
+    @State private var waiting: [User] = []
     @State private var busy = false
     @State private var adding = false
     @State private var removingId: String?
@@ -109,9 +262,20 @@ private struct CaregiverPeopleView: View {
                 Text("Sharing")
                     .font(AppFont.bodyMedium)
                     .foregroundStyle(Color.card)
-                Text("They see this day.")
+                Text("They approve before you see anything.")
                     .font(AppFont.caption)
                     .foregroundStyle(Color.mute)
+
+                if !waiting.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(waiting) { person in
+                            Text("\(person.displayName) hasn’t answered yet")
+                                .font(AppFont.caption)
+                                .foregroundStyle(Color.mute)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
                 if busy && patients.isEmpty {
                     Spacer()
@@ -130,7 +294,7 @@ private struct CaregiverPeopleView: View {
                         .tracking(AppTracking.poster)
                         .minimumScaleFactor(0.3)
                         .lineLimit(1)
-                    Text("Add a patient with their email.")
+                    Text("Ask a patient with their email.")
                         .font(AppFont.body)
                         .foregroundStyle(Color.mute)
                     Spacer()
@@ -220,7 +384,11 @@ private struct CaregiverPeopleView: View {
         Task {
             defer { busy = false }
             do {
-                patients = try await CaregiverService(client: session.client()).monitoredPatients()
+                let service = CaregiverService(client: session.client())
+                async let accepted = service.monitoredPatients()
+                async let pending = service.pendingPatients()
+                patients = try await accepted
+                waiting = try await pending
             } catch {
                 errorText = error.localizedDescription
             }
@@ -239,12 +407,12 @@ private struct CaregiverPeopleView: View {
         Task {
             defer { adding = false }
             do {
-                let person = try await CaregiverService(client: session.client()).linkPatient(email: trimmed)
-                if !patients.contains(where: { $0.id == person.id }) {
-                    patients.append(person)
+                let person = try await CaregiverService(client: session.client()).requestAccess(email: trimmed)
+                if !waiting.contains(where: { $0.id == person.id }) {
+                    waiting.append(person)
                 }
                 email = ""
-                note = "Linked. They get a mail if that address is already a patient."
+                note = "Asked. \(person.displayName) approves before you can see their day."
             } catch {
                 errorText = error.localizedDescription
             }
