@@ -16,6 +16,7 @@
 		0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA67845FC704505A765B22E /* ActivityService.swift */; };
 		DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */; };
 		A1F0WATCH01LINK01B01 /* WatchLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0WATCH01LINK01F01 /* WatchLink.swift */; };
+		A1F0CAREG01SUMM01B01 /* CaregiverSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0CAREG01SUMM01F01 /* CaregiverSummaryView.swift */; };
 		A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0PROF01SERV01F01 /* ProfileService.swift */; };
 		7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162AC86725A34C50A3F88B4A /* GlucoseService.swift */; };
 		74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675C44D70254391BA0D3D80 /* AnalysisService.swift */; };
@@ -52,6 +53,7 @@
 		6EA67845FC704505A765B22E /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
 		F7CBDC10528447BA91FA2CE0 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		A1F0WATCH01LINK01F01 /* WatchLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLink.swift; sourceTree = "<group>"; };
+		A1F0CAREG01SUMM01F01 /* CaregiverSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverSummaryView.swift; sourceTree = "<group>"; };
 		A1F0PROF01SERV01F01 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		162AC86725A34C50A3F88B4A /* GlucoseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseService.swift; sourceTree = "<group>"; };
 		9675C44D70254391BA0D3D80 /* AnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisService.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 				CABE6419C54F4BDC97DC3C62 /* RootView.swift */,
 				2A46AB87367649D88E3039B6 /* HomePlaceholderView.swift */,
 				C3A1TAB01MAIN01F01 /* MainTabView.swift */,
+				A1F0CAREG01SUMM01F01 /* CaregiverSummaryView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -320,6 +323,7 @@
 				0F430F22C5DC40808D9A1CDF /* ActivityService.swift in Sources */,
 				DA5B01B2AD1C489FB14BD59D /* HealthKitService.swift in Sources */,
 				A1F0WATCH01LINK01B01 /* WatchLink.swift in Sources */,
+				A1F0CAREG01SUMM01B01 /* CaregiverSummaryView.swift in Sources */,
 				A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */,
 				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,
 				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,

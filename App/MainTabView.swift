@@ -30,7 +30,6 @@ struct MainTabView: View {
         }
         .tint(Color.flare)
         .onAppear {
-            if isCaregiver { tab = .sharing }
             catchUpHealth()
         }
         .onChange(of: scenePhase) { _, phase in
@@ -467,14 +466,7 @@ private struct SummaryView: View {
     var body: some View {
         Group {
             if isCaregiver {
-                messagePoster(
-                    fill: Color.ink,
-                    scheme: .dark,
-                    ink: Color.card,
-                    title: "Pick",
-                    unit: nil,
-                    leftover: "Sharing. Then this tab is their day."
-                )
+                CaregiverSummaryView()
             } else if HealthKitService.isAvailable && !prompted {
                 allowPoster
             } else if needsGlucose {
