@@ -83,7 +83,10 @@ private struct SummaryScreen: View {
     var week: [WeekPoint]
     var latest: GlucosePoint?
     var watch: WatchLink.State
+    var client: GraphQLClient
     var onBack: () -> Void
+
+    @State private var showingHistory = false
 
     private var average: Double? {
         let values = week.compactMap(\.glucose)
@@ -229,6 +232,18 @@ private struct SummaryScreen: View {
     }
 
     private var todayCard: some View {
+        Button {
+            showingHistory = true
+        } label: {
+            todayCardBody
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showingHistory) {
+            GlucoseHistoryView(client: client)
+        }
+    }
+
+    private var todayCardBody: some View {
         HStack(spacing: 10) {
             Circle()
                 .fill(readingStatus.1)
@@ -247,6 +262,9 @@ private struct SummaryScreen: View {
                 Spacer()
                 Text(latest.recordedAt.formatted(date: .omitted, time: .shortened))
                     .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(Color.mute)
             } else {
                 Text("No reading yet")
@@ -538,6 +556,7 @@ private struct SummaryView: View {
             week: apiWeek.isEmpty ? fallback : apiWeek,
             latest: graph.latestReading(patientId: patientId),
             watch: watch,
+            client: session.client(),
             onBack: {
                 withAnimation(.spring(response: 0.42, dampingFraction: 0.9)) {
                     showingSummary = false
