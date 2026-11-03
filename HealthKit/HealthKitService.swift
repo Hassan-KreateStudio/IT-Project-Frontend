@@ -109,6 +109,92 @@ struct HealthKitService {
         }
     }
 
+
+    /// Today's numbers as the Watch itself counted them, so the cards match the
+    /// watch face. Display only — WeekIngest still syncs the merged totals.
+    /// Returns nil when no Watch source has written recently, so the caller
+    /// falls back to the merged day.
+    func watchDay(for day: Date = Date(), calendar: Calendar = .current) async -> HealthDay? {
+        let sources = await watchSources()
+        guard !sources.isEmpty else { return nil }
+
+        let start = calendar.startOfDay(for: day)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { return nil }
+
+        let stepCount = Int((await watchTotal(.stepCount, options: [.cumulativeSum, .separateBySource], unit: .count(), start: start, end: end, sources: sources)).rounded())
+        let durationMinutes = Int((await watchTotal(.appleExerciseTime, options: [.cumulativeSum, .separateBySource], unit: .minute(), start: start, end: end, sources: sources)).rounded())
+        let heart = await watchTotal(.heartRate, options: [.discreteAverage, .separateBySource], unit: HKUnit.count().unitDivided(by: .minute()), start: start, end: end, sources: sources)
+        let heartRate: Int? = heart > 0 ? Int(heart.rounded()) : nil
+
+        guard stepCount > 0 || durationMinutes > 0 || heartRate != nil else { return nil }
+
+        Log.health("watch day steps=\(stepCount) min=\(durationMinutes) hr=\(heartRate.map(String.init) ?? "nil")")
+        return HealthDay(
+            start: start,
+            sourceId: HealthDay.sourceId(for: start, calendar: calendar),
+            recordedAt: start,
+            stepCount: stepCount,
+            heartRate: heartRate,
+            durationMinutes: durationMinutes,
+            intensity: durationMinutes > 0 ? "MODERATE" : "LIGHT",
+            sedentaryMinutes: max(0, Self.wakingMinutes - durationMinutes)
+        )
+    }
+
+    /// Which HealthKit sources are watchOS devices. productType is the only
+    /// stable signal (name and bundle id are not documented).
+    private func watchSources() async -> Set<HKSource> {
+        guard let type = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return [] }
+        let since = Date().addingTimeInterval(-30 * 24 * 60 * 60)
+        let predicate = HKQuery.predicateForSamples(withStart: since, end: nil, options: .strictStartDate)
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: 100, sortDescriptors: [sort]) { _, samples, _ in
+                var sources = Set<HKSource>()
+                for case let sample as HKSample in samples ?? [] {
+                    if sample.sourceRevision.productType?.localizedCaseInsensitiveContains("watch") == true {
+                        sources.insert(sample.sourceRevision.source)
+                    }
+                }
+                continuation.resume(returning: sources)
+            }
+            store.execute(query)
+        }
+    }
+
+    /// Sums (or averages) one day's statistics over the given sources only.
+    /// `.separateBySource` is required — without it `sources` comes back nil.
+    private func watchTotal(
+        _ identifier: HKQuantityTypeIdentifier,
+        options: HKStatisticsOptions,
+        unit: HKUnit,
+        start: Date,
+        end: Date,
+        sources: Set<HKSource>
+    ) async -> Double {
+        guard let type = HKQuantityType.quantityType(forIdentifier: identifier) else { return 0 }
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+
+        return await withCheckedContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: options) { _, statistics, _ in
+                guard let statistics else {
+                    continuation.resume(returning: 0)
+                    return
+                }
+                var total = 0.0
+                for source in statistics.sources ?? [] where sources.contains(source) {
+                    let quantity = options.contains(.cumulativeSum)
+                        ? statistics.sumQuantity(for: source)
+                        : statistics.averageQuantity(for: source)
+                    total += quantity?.doubleValue(for: unit) ?? 0
+                }
+                continuation.resume(returning: total)
+            }
+            store.execute(query)
+        }
+    }
+
     private func dailyTotals(
         identifier: HKQuantityTypeIdentifier,
         options: HKStatisticsOptions,

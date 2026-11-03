@@ -137,6 +137,7 @@ private struct SummaryView: View {
     @State private var glucoseText = ""
     @State private var savingGlucose = false
     @State private var watch: WatchLink.State = .absent
+    @State private var watchDay: TodayMetrics?
     @State private var showingGlucose = false
     @FocusState private var glucoseFocused: Bool
 
@@ -176,7 +177,7 @@ private struct SummaryView: View {
                     unit: nil,
                     leftover: "Reading Health on this iPhone."
                 )
-            } else if let today = graph.today {
+            } else if let today = shownToday {
                 metricsDeck(today)
             } else {
                 messagePoster(
@@ -198,12 +199,36 @@ private struct SummaryView: View {
         }
     }
 
+    /// Watch numbers for the cards, with glucose always taken from the local
+    /// store so a reading saved a second ago is already on the card.
+    private var shownToday: TodayMetrics? {
+        guard var day = watchDay else { return graph.today }
+        day.glucose = graph.todayGlucose
+        return day
+    }
+
     private func refreshDay() {
         prompted = health.hasPrompted
         if let id = session.user?.id {
             graph.refreshToday(patientId: id)
         }
-        Task { watch = await WatchLink.current() }
+        Task {
+            watch = await WatchLink.current()
+            if watch == .absent {
+                watchDay = nil
+            } else if let day = await health.watchDay() {
+                watchDay = TodayMetrics(
+                    steps: day.stepCount,
+                    heartRate: day.heartRate,
+                    durationMinutes: day.durationMinutes,
+                    intensity: day.intensity,
+                    sedentaryMinutes: day.sedentaryMinutes,
+                    glucose: graph.todayGlucose
+                )
+            } else {
+                watchDay = nil
+            }
+        }
     }
 
     private var weekday: String {
