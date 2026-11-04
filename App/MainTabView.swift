@@ -561,6 +561,7 @@ private struct SummaryView: View {
                 withAnimation(.spring(response: 0.42, dampingFraction: 0.9)) {
                     showingSummary = false
                 }
+                dragX = 0
             }
         )
     }
@@ -760,8 +761,7 @@ private struct SummaryView: View {
 
     private func metricsDeck(_ today: TodayMetrics) -> some View {
         let current = page(for: today, hero: hero)
-        let ahead = page(for: today, hero: neighbor(1))
-        let behind = page(for: today, hero: neighbor(-1))
+        let next = page(for: today, hero: neighbor(1))
 
         return DippedStage(fill: Color.ink, scheme: .dark) {
             GeometryReader { geo in
@@ -776,16 +776,12 @@ private struct SummaryView: View {
                     header
 
                     ZStack(alignment: .bottom) {
-                        fanCard(behind, today: today, width: cardWidth, height: cardHeight)
-                            .rotationEffect(.degrees(-11), anchor: .bottom)
-                            .offset(y: 34)
-                            .scaleEffect(0.9)
-                            .opacity(0.75)
-                        fanCard(ahead, today: today, width: cardWidth, height: cardHeight)
-                            .rotationEffect(.degrees(-5.5), anchor: .bottom)
-                            .offset(y: 18)
-                            .scaleEffect(0.95)
-                            .opacity(0.9)
+                        // The arriving card rises out of the deck as you pull,
+                        // so the swap at the end is invisible.
+                        fanCard(next, today: today, width: cardWidth, height: cardHeight)
+                            .rotationEffect(.degrees(-5.5 * (1 - progress(cardWidth))), anchor: .bottom)
+                            .offset(y: 18 * (1 - progress(cardWidth)))
+                            .scaleEffect(0.95 + 0.05 * progress(cardWidth))
                         fanCard(current, today: today, width: cardWidth, height: cardHeight)
                             .offset(x: dragX)
                             .rotationEffect(.degrees(Double(dragX / max(cardWidth, 1)) * 4), anchor: .bottom)
@@ -811,7 +807,7 @@ private struct SummaryView: View {
                     .frame(maxWidth: .infinity)
                     .animation(.easeOut(duration: 0.2), value: hero)
 
-                    Text("Swipe for \(ahead.label.lowercased())")
+                    Text(hero == SummaryHero.allCases.last ? "Swipe for your summary" : "Swipe for \(next.label.lowercased())")
                         .font(AppFont.caption)
                         .foregroundStyle(Color.mute)
                         .frame(maxWidth: .infinity)
@@ -836,8 +832,8 @@ private struct SummaryView: View {
             .accessibilityLabel(current.accessibility)
             .accessibilityAdjustableAction { direction in
                 switch direction {
-                case .increment: cycle(1)
-                case .decrement: cycle(-1)
+                case .increment: advance()
+                case .decrement: stepBack()
                 default: break
                 }
             }
@@ -986,7 +982,8 @@ private struct SummaryView: View {
                     else if abs(dy) > 10 { dragAxis = .vertical }
                 }
                 guard dragAxis == .horizontal else { return }
-                dragX = dx
+                // Forward only. Backwards gets a short rubber band, never a step.
+                dragX = dx <= 0 ? dx : dx * 0.18
             }
             .onEnded { value in
                 defer { dragAxis = nil }
@@ -997,34 +994,46 @@ private struct SummaryView: View {
                 let predicted = value.predictedEndTranslation.width
                 let threshold = width * 0.22
                 if predicted < -threshold || value.translation.width < -threshold {
-                    fling(to: -width * 1.2, step: 1)
-                } else if predicted > threshold || value.translation.width > threshold {
-                    fling(to: width * 1.2, step: -1)
+                    advance()
                 } else {
-                    withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.85)) {
                         dragX = 0
                     }
                 }
             }
     }
 
-    private func fling(to x: CGFloat, step: Int) {
+    private func advance() {
+        guard !isFlinging else { return }
         isFlinging = true
-        withAnimation(.easeIn(duration: 0.28)) {
-            dragX = x
+        let isLast = hero == SummaryHero.allCases.last
+        withAnimation(.easeIn(duration: 0.24)) {
+            dragX = -600
         } completion: {
+            if isLast {
+                withAnimation(.spring(response: 0.46, dampingFraction: 0.88)) {
+                    showingSummary = true
+                }
+                isFlinging = false
+                return
+            }
             var reset = Transaction()
             reset.disablesAnimations = true
             withTransaction(reset) {
                 dragX = 0
-            }
-            if cycle(step) {
-                withAnimation(.spring(response: 0.46, dampingFraction: 0.88)) {
-                    showingSummary = true
-                }
+                hero = SummaryHero(rawValue: (hero.rawValue + 1) % SummaryHero.allCases.count) ?? hero
             }
             isFlinging = false
         }
+    }
+
+    private func progress(_ width: CGFloat) -> Double {
+        min(max(-dragX / max(width, 1), 0), 1)
+    }
+
+    private func stepBack() {
+        let all = SummaryHero.allCases
+        hero = SummaryHero(rawValue: (hero.rawValue - 1 + all.count) % all.count) ?? hero
     }
 
     private func neighbor(_ step: Int) -> SummaryHero {
@@ -1175,20 +1184,6 @@ private struct SummaryView: View {
     /// Steps through the deck. Past the last card it hands off to the summary
     /// screen instead of wrapping; every other swipe keeps the ring.
     @discardableResult
-    private func cycle(_ step: Int) -> Bool {
-        if errorText != nil {
-            ingestWeek()
-            return false
-        }
-        let all = SummaryHero.allCases
-        if step > 0, hero == all.last {
-            return true
-        }
-        let next = (hero.rawValue + step + all.count) % all.count
-        hero = all[next]
-        return false
-    }
-
     private func intensityLabel(_ raw: String) -> String {
         switch raw {
         case "LIGHT": return "Light"
