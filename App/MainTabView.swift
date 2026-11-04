@@ -203,20 +203,19 @@ private struct SummaryScreen: View {
 
     private var kpiRow: some View {
         HStack(spacing: 8) {
-            kpi("Steps", today.steps.formatted(), Color.flare)
-            kpi("Exercise", "\(today.durationMinutes)m", Color.acid)
-            kpi("Heart", today.heartRate.map(String.init) ?? "—", Color.aurora)
-            kpi("Sitting", "\(today.sedentaryMinutes / 60)h", Color.warn)
+            kpi("figure.walk", spoken: "Steps", today.steps.formatted(), Color.flare)
+            kpi("figure.run", spoken: "Exercise", "\(today.durationMinutes)m", Color.acid)
+            kpi("heart.fill", spoken: "Heart rate", today.heartRate.map(String.init) ?? "—", Color.aurora)
+            kpi("chair.fill", spoken: "Sitting", "\(today.sedentaryMinutes / 60)h", Color.warn)
         }
     }
 
-    private func kpi(_ label: String, _ value: String, _ fill: Color) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(label)
-                .font(AppFont.chip)
-                .tracking(1.1)
-                .textCase(.uppercase)
-                .foregroundStyle(Color.ink.opacity(0.55))
+    private func kpi(_ symbol: String, spoken: String, _ value: String, _ fill: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Color.ink.opacity(0.62))
+                .frame(height: 15, alignment: .leading)
             Text(value)
                 .font(.custom("BricolageGrotesque-ExtraBold", size: 19))
                 .tracking(-0.5)
@@ -224,6 +223,8 @@ private struct SummaryScreen: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(spoken) \(value)")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
         .padding(.horizontal, 10)
