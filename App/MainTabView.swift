@@ -466,6 +466,7 @@ private struct SummaryView: View {
     @State private var health = HealthKitService()
     @State private var prompted = false
     @State private var ingesting = false
+    @State private var ingestStage: String?
     @State private var errorText: String?
     @State private var hero: SummaryHero = .steps
     @State private var dragX: CGFloat = 0
@@ -501,15 +502,8 @@ private struct SummaryView: View {
                     unit: nil,
                     leftover: "Health isn’t on this device."
                 )
-            } else if ingesting && graph.today == nil {
-                messagePoster(
-                    fill: Color.flare,
-                    scheme: .light,
-                    ink: Color.ink,
-                    title: "Wait",
-                    unit: nil,
-                    leftover: "Reading Health on this iPhone."
-                )
+            } else if ingesting {
+                loadingPoster
             } else if let today = shownToday {
                 ZStack {
                     if showingSummary {
@@ -613,6 +607,42 @@ private struct SummaryView: View {
 
     private var weekday: String {
         Date.now.formatted(.dateTime.weekday(.wide))
+    }
+
+    private var loadingPoster: some View {
+        DippedStage(fill: Color.ink, scheme: .dark) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(weekday)
+                    .font(AppFont.bodyMedium)
+                    .foregroundStyle(Color.mute)
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(Color.flare)
+                    .scaleEffect(1.4)
+                Text("Pulling your last 90 days")
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(Color.card)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 18)
+                Text(ingestStage ?? "Asking Health for your activity…")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                    .padding(.top, 8)
+                    .animation(.easeOut(duration: 0.2), value: ingestStage)
+                Text("Leave this screen open. The first pull covers 90 days, so it takes longer than the rest.")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 14)
+                Spacer()
+                if let errorText {
+                    Text(errorText)
+                        .font(AppFont.captionMedium)
+                        .foregroundStyle(Color.alert)
+                }
+            }
+        }
     }
 
     private var allowPoster: some View {
@@ -1222,12 +1252,14 @@ private struct SummaryView: View {
                     health: health,
                     graph: graph,
                     activity: ActivityService(client: session.client()),
-                    profile: ProfileService(client: session.client())
+                    profile: ProfileService(client: session.client()),
+                    report: { stage in ingestStage = stage }
                 )
             } catch {
                 errorText = error.localizedDescription
                 Log.health("ingest failed: \(error.localizedDescription)")
             }
+            ingestStage = nil
             ingesting = false
         }
     }

@@ -11,7 +11,8 @@ enum WeekIngest {
         health: HealthKitService,
         graph: GraphStore,
         activity: ActivityService,
-        profile: ProfileService
+        profile: ProfileService,
+        report: (String) -> Void = { _ in }
     ) async throws -> Bool {
         if graph.catchingUp {
             Log.health("skip overlapping catch-up")
@@ -36,13 +37,16 @@ enum WeekIngest {
             start = today
         }
 
+        report("Reading from \(HealthDay.sourceId(for: start))")
         let samples = try await health.activity(from: start, to: now, calendar: calendar)
+        report("Read \(samples.count) days from Health")
         let summary = samples
             .map { "\($0.sourceId) steps=\($0.stepCount) min=\($0.durationMinutes)" }
             .joined(separator: "; ")
         Log.health("got \(samples.count) days: \(summary)")
 
         try graph.upsert(patientId: patientId, displayName: displayName, samples: samples)
+        report("Saved \(samples.count) days on this phone")
         HealthCursor.markRead(patientId: patientId, at: now)
 
         let traits = await health.profile()
@@ -52,9 +56,11 @@ enum WeekIngest {
             Log.sync("profile failed: \(error.localizedDescription)")
         }
 
+        report("Sending \(samples.count) days to the server")
         do {
             let synced = try await activity.sync(samples)
             try graph.markSynced(patientId: patientId, sourceIds: synced)
+            report("Server accepted \(synced.count) days")
             Log.sync("wrote \(synced.count) records")
             return true
         } catch {
