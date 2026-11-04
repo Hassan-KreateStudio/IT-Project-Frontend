@@ -620,25 +620,27 @@ private struct SummaryView: View {
                     .font(AppFont.bodyMedium)
                     .foregroundStyle(Color.ink)
                 Spacer()
-                Text("Allow")
-                    .font(AppFont.poster)
+
+                Text("May we read your Health data?")
+                    .font(AppFont.largeTitle)
                     .foregroundStyle(Color.ink)
-                    .tracking(AppTracking.poster)
-                    .minimumScaleFactor(0.3)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
-                Text("Health")
-                    .font(AppFont.unit)
-                    .foregroundStyle(Color.ink)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 4)
-                Spacer()
-                Text("Watch writes here. We only read steps, heart, and movement.")
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("IT Project reads your steps, heart rate and exercise minutes from Apple Health, so they can sit next to the glucose you log.")
                     .font(AppFont.body)
-                    .foregroundStyle(Color.ink)
+                    .foregroundStyle(Color.ink.opacity(0.8))
                     .lineSpacing(4)
-                    .padding(.bottom, 16)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 12)
+
+                Text("It only ever reads. Nothing is written back to Health, and nothing is shared without asking you first.")
+                    .font(AppFont.caption)
+                    .foregroundStyle(Color.ink.opacity(0.65))
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 10)
+
+                Spacer()
                 if let errorText {
                     Text(errorText)
                         .font(AppFont.captionMedium)
@@ -646,7 +648,7 @@ private struct SummaryView: View {
                         .padding(.bottom, 8)
                 }
                 Button(action: allowHealth) {
-                    Text(ingesting ? "Working…" : "Allow Health")
+                    Text(ingesting ? "Asking iOS…" : "Continue")
                         .font(AppFont.button)
                         .foregroundStyle(Color.card)
                         .frame(maxWidth: .infinity)
@@ -655,6 +657,13 @@ private struct SummaryView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
                 .disabled(ingesting)
+
+                Text("iOS will show its own permission sheet next. You can change this any time in Settings.")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.ink.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 10)
             }
         }
     }
