@@ -60,28 +60,11 @@ struct DippedStage<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        ZStack {
-            fill.ignoresSafeArea()
-            content()
-                .padding(.horizontal, 20)
-                .padding(.top, ScreenSafe.top + 12)
-                .padding(.bottom, ScreenSafe.bottom + 72)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(fill.ignoresSafeArea())
-        .preferredColorScheme(scheme)
-    }
-}
-
-private enum ScreenSafe {
-    static var top: CGFloat { insets.top }
-    static var bottom: CGFloat { insets.bottom }
-
-    private static var insets: UIEdgeInsets {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
-        return window?.safeAreaInsets ?? UIEdgeInsets(top: 59, left: 0, bottom: 34, right: 0)
+        content()
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(fill.ignoresSafeArea())
+            .preferredColorScheme(scheme)
     }
 }
 
