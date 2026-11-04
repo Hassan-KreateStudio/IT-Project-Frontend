@@ -1273,39 +1273,75 @@ private struct YouView: View {
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
     private var name: String {
-        let raw = session.user?.displayName.firstName ?? ""
+        let raw = session.user?.displayName ?? ""
         return raw.isEmpty ? "You" : raw
     }
 
     var body: some View {
-        DippedStage(fill: Color.ink, scheme: .dark) {
-            VStack(spacing: 12) {
-                Spacer()
-                Text(name)
-                    .font(AppFont.poster)
-                    .foregroundStyle(Color.card)
-                    .tracking(AppTracking.poster)
-                    .minimumScaleFactor(0.25)
-                    .lineLimit(1)
-                    .frame(maxWidth: .infinity)
-                Text(session.user?.email ?? "")
+        LightStage {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("You")
+                    .font(AppFont.largeTitle)
+                    .tracking(AppTracking.largeTitle)
+                    .foregroundStyle(Color.ink)
+                Text(isCaregiver ? "Caregiver account" : "Patient account")
                     .font(AppFont.body)
                     .foregroundStyle(Color.mute)
-                Text(isCaregiver ? "Caregiver" : "Patient")
-                    .font(AppFont.chip)
-                    .foregroundStyle(Color.ink)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(isCaregiver ? Color.acid : Color.flare)
-                    .clipShape(Capsule())
-                Spacer()
-                Button("Sign out") {
-                    session.signOut()
-                }
-                .font(AppFont.bodyMedium)
-                .foregroundStyle(Color.card)
             }
-            .frame(maxWidth: .infinity)
+
+            HStack(spacing: 12) {
+                Text(initials)
+                    .font(.custom("BricolageGrotesque-ExtraBold", size: 15))
+                    .foregroundStyle(Color.ink)
+                    .frame(width: 46, height: 46)
+                    .background(isCaregiver ? Color.acid : Color.flare)
+                    .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name)
+                        .font(AppFont.cardTitle)
+                        .foregroundStyle(Color.ink)
+                    Text(session.user?.email ?? "")
+                        .font(AppFont.caption)
+                        .foregroundStyle(Color.mute)
+                }
+                Spacer(minLength: 0)
+            }
+            .panel()
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Account").sectionHeading()
+                HStack {
+                    Text("Role")
+                        .font(AppFont.body)
+                        .foregroundStyle(Color.ink)
+                    Spacer()
+                    Text(isCaregiver ? "Caregiver" : "Patient")
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.ink)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(isCaregiver ? Color.acid : Color.flare)
+                        .clipShape(Capsule())
+                }
+            }
+            .panel()
+
+            Button {
+                session.signOut()
+            } label: {
+                Text("Sign out")
+                    .font(AppFont.button)
+                    .foregroundStyle(Color.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.mist)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
         }
+    }
+
+    private var initials: String {
+        name.split(separator: " ").prefix(2).compactMap { $0.first.map(String.init) }.joined().uppercased()
     }
 }

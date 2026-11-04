@@ -68,6 +68,50 @@ struct DippedStage<Content: View>: View {
     }
 }
 
+/// The quiet surface: off-white page, dark type, cards that sit on it.
+/// Hero moments keep `DippedStage`; everything you read and act on uses this.
+struct LightStage<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 16) {
+                content()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .padding(.bottom, 32)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(Color.canvas.ignoresSafeArea())
+        .preferredColorScheme(.light)
+    }
+}
+
+extension View {
+    /// A white card on the quiet surface.
+    func panel(padding: CGFloat = 16, radius: CGFloat = 20) -> some View {
+        self
+            .padding(padding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.card)
+            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .stroke(Color.hairline, lineWidth: 1)
+            )
+    }
+
+    /// Small all-caps section heading.
+    func sectionHeading() -> some View {
+        self
+            .font(AppFont.chip)
+            .tracking(1.6)
+            .textCase(.uppercase)
+            .foregroundStyle(Color.mute)
+    }
+}
+
 extension String {
     var firstName: String {
         split(separator: " ").first.map(String.init) ?? self

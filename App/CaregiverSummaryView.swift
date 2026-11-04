@@ -10,8 +10,7 @@ struct CaregiverSummaryView: View {
     @State private var errorText: String?
 
     var body: some View {
-        DippedStage(fill: Color.ink, scheme: .dark) {
-            ScrollView(showsIndicators: false) {
+        LightStage {
                 VStack(alignment: .leading, spacing: 0) {
                     header
 
@@ -44,8 +43,12 @@ struct CaregiverSummaryView: View {
                             }
                         }
                         .padding(.horizontal, 15)
-                        .background(Color.night)
+                        .background(Color.card)
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(Color.hairline, lineWidth: 1)
+                        )
                     }
 
                     if !waiting.isEmpty {
@@ -55,9 +58,8 @@ struct CaregiverSummaryView: View {
                             .padding(.top, 14)
                     }
                 }
-            }
-            .refreshable { await load() }
         }
+        .refreshable { await load() }
         .onAppear { Task { await load() } }
     }
 
@@ -65,7 +67,8 @@ struct CaregiverSummaryView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text("Summary")
                 .font(AppFont.largeTitle)
-                .foregroundStyle(Color.card)
+                .tracking(AppTracking.largeTitle)
+                .foregroundStyle(Color.ink)
             Text(subtitle)
                 .font(AppFont.caption)
                 .foregroundStyle(Color.mute)
@@ -105,14 +108,14 @@ struct CaregiverSummaryView: View {
     }
 
     private func patientCard(_ card: WatchCard) -> some View {
-        let ink = card.tinted ? Color.ink : Color.card
+        let ink = card.tinted ? Color.ink : Color.ink
         return VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
                 Text(card.initials)
                     .font(.custom("BricolageGrotesque-ExtraBold", size: 13))
-                    .foregroundStyle(card.tinted ? Color.ink : Color.card)
+                    .foregroundStyle(Color.ink)
                     .frame(width: 38, height: 38)
-                    .background(card.tinted ? Color.ink.opacity(0.14) : Color.dusk)
+                    .background(card.tinted ? Color.ink.opacity(0.14) : Color.mist)
                     .clipShape(Circle())
                 VStack(alignment: .leading, spacing: 1) {
                     Text(card.name)
@@ -167,8 +170,12 @@ struct CaregiverSummaryView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(card.tinted ? card.tint : Color.night)
+        .background(card.tinted ? card.tint : Color.card)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(card.tinted ? Color.clear : Color.hairline, lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(card.name), glucose \(card.glucose.map { String(Int($0.rounded())) } ?? "none") milligrams per deciliter, \(card.detail)")
     }
@@ -201,7 +208,7 @@ struct CaregiverSummaryView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
             Text(alert.message.contains(name) ? alert.message : "\(alert.message) · \(name)")
                 .font(AppFont.chip)
-                .foregroundStyle(Color.card)
+                .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
