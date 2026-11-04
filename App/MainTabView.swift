@@ -538,6 +538,9 @@ private struct SummaryView: View {
         .onChange(of: showingSummary) { _, shown in
             if shown { Task { await loadSummaryWeek() } }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .watchLinkSettled)) { _ in
+            refreshDay()
+        }
         .sheet(isPresented: $showingGlucose) {
             glucosePoster
         }
