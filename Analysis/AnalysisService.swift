@@ -18,10 +18,14 @@ struct AnalysisService {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
 
+        // The server buckets by the reader's clock, not UTC, so a 23:30 reading
+        // shows on the day you call today.
+        let offsetMinutes = TimeZone.current.secondsFromGMT() / 60
+
         let data: Data = try await client.execute(
             query: """
-            query($from: Time, $to: Time) {
-              dashboard(from: $from, to: $to) {
+            query($from: Time, $to: Time, $offset: Int) {
+              dashboard(from: $from, to: $to, offsetMinutes: $offset) {
                 summary { totalSteps averageGlucose glucoseReadingCount totalActiveMinutes }
                 glucoseTrends { date averageValue readingCount }
                 activityTrends { date stepCount durationMinutes }

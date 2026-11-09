@@ -602,7 +602,6 @@ private struct SummaryView: View {
     /// The summary's seven-day series comes from the server so two devices on
     /// the same account agree. Local data is only a fallback.
     private func loadSummaryWeek() async {
-        guard apiWeek.isEmpty else { return }
         if let snapshot = try? await AnalysisService(client: session.client()).dashboard() {
             apiWeek = snapshot.week()
         }
@@ -1262,6 +1261,7 @@ private struct SummaryView: View {
                 errorText = error.localizedDescription
                 Log.health("ingest failed: \(error.localizedDescription)")
             }
+            apiWeek = []
             ingestStage = nil
             ingesting = false
         }
