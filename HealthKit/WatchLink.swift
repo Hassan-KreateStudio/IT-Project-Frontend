@@ -122,4 +122,6 @@ final class WatchActivationWaiter: NSObject, WCSessionDelegate, @unchecked Senda
 
 extension Notification.Name {
     static let watchLinkSettled = Notification.Name("itproject.watchLinkSettled")
+    /// Fired when a Health catch-up finishes, so screens can drop cached reads.
+    static let healthSyncFinished = Notification.Name("itproject.healthSyncFinished")
 }

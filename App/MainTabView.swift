@@ -57,6 +57,7 @@ struct MainTabView: View {
             } catch {
                 Log.health("catch-up failed: \(error.localizedDescription)")
             }
+            NotificationCenter.default.post(name: .healthSyncFinished, object: nil)
             await flushGlucose()
         }
     }
@@ -540,6 +541,11 @@ private struct SummaryView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchLinkSettled)) { _ in
             refreshDay()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .healthSyncFinished)) { _ in
+            apiWeek = []
+            guard showingSummary else { return }
+            Task { await loadSummaryWeek() }
         }
         .sheet(isPresented: $showingGlucose) {
             glucosePoster
