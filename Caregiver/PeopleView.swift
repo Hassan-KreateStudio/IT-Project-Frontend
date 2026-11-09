@@ -243,6 +243,7 @@ private struct CaregiverPeopleView: View {
     @State private var pendingRemove: User?
     @State private var errorText: String?
     @State private var note: String?
+    @FocusState private var emailFocused: Bool
 
     var body: some View {
         LightStage {
@@ -273,6 +274,9 @@ private struct CaregiverPeopleView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 TextField("", text: $email, prompt: Text("Patient email").foregroundStyle(Color.mute))
+                    .focused($emailFocused)
+                    .submitLabel(.send)
+                    .onSubmit { add() }
                     .font(AppFont.body)
                     .foregroundStyle(Color.ink)
                     .tint(Color.flare)
@@ -399,6 +403,7 @@ private struct CaregiverPeopleView: View {
     }
 
     private func add() {
+        emailFocused = false
         errorText = nil
         note = nil
         let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
