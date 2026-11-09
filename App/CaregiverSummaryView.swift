@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The caregiver's own Summary tab: one status card per patient, coloured by
-/// that patient's last daily glucose average.
+/// The caregiver's Summary: one week strip per patient, coloured by that day's
+/// average glucose, plus the week's numbers underneath.
 struct CaregiverSummaryView: View {
     @EnvironmentObject private var session: SessionStore
     @State private var cards: [WatchCard] = []
@@ -11,69 +11,55 @@ struct CaregiverSummaryView: View {
 
     var body: some View {
         LightStage {
-                VStack(alignment: .leading, spacing: 0) {
-                    header
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Summary")
+                    .font(AppFont.largeTitle)
+                    .tracking(AppTracking.largeTitle)
+                    .foregroundStyle(Color.ink)
+                Text(subtitle)
+                    .font(AppFont.caption)
+                    .foregroundStyle(Color.mute)
+            }
 
-                    if let errorText {
-                        Text(errorText)
-                            .font(AppFont.captionMedium)
-                            .foregroundStyle(Color.alert)
-                            .padding(.bottom, 12)
-                    }
+            if let errorText {
+                Text(errorText)
+                    .font(AppFont.captionMedium)
+                    .foregroundStyle(Color.alert)
+                    .panel(padding: 12)
+            }
 
-                    if busy && cards.isEmpty {
-                        Text("Reading…")
-                            .font(AppFont.body)
-                            .foregroundStyle(Color.mute)
-                            .padding(.vertical, 30)
-                    } else if cards.isEmpty {
-                        emptyState
-                    } else {
-                        ForEach(cards) { card in
-                            patientCard(card)
-                                .padding(.bottom, 10)
-                        }
-                    }
+            if busy && cards.isEmpty {
+                Text("Reading…")
+                    .font(AppFont.body)
+                    .foregroundStyle(Color.mute)
+                    .panel(padding: 16)
+            } else if cards.isEmpty {
+                emptyState
+            } else {
+                ForEach(cards) { card in
+                    patientCard(card)
+                }
+            }
 
-                    if !warnings.isEmpty {
-                        sectionLabel("Recent warnings").padding(.top, 8)
-                        VStack(spacing: 0) {
-                            ForEach(Array(warnings.enumerated()), id: \.offset) { _, entry in
-                                warningRow(entry.0, entry.1)
-                            }
-                        }
-                        .padding(.horizontal, 15)
-                        .background(Color.card)
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(Color.hairline, lineWidth: 1)
-                        )
-                    }
-
-                    if !waiting.isEmpty {
-                        Text(waitingSentence)
-                            .font(AppFont.chip)
-                            .foregroundStyle(Color.mute)
-                            .padding(.top, 14)
+            if !warnings.isEmpty {
+                Text("Worth knowing").sectionHeading().padding(.top, 6)
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(warnings.enumerated()), id: \.offset) { _, alert in
+                        warningRow(alert)
                     }
                 }
+                .panel(padding: 14)
+            }
+
+            if !waiting.isEmpty {
+                Text(waitingSentence)
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+                    .padding(.top, 4)
+            }
         }
         .refreshable { await load() }
         .onAppear { Task { await load() } }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("Summary")
-                .font(AppFont.largeTitle)
-                .tracking(AppTracking.largeTitle)
-                .foregroundStyle(Color.ink)
-            Text(subtitle)
-                .font(AppFont.caption)
-                .foregroundStyle(Color.mute)
-        }
-        .padding(.bottom, 14)
     }
 
     private var subtitle: String {
@@ -86,142 +72,155 @@ struct CaregiverSummaryView: View {
         return "Waiting for \(names) to accept."
     }
 
-    private var warnings: [(String, DashboardSnapshot.Alert)] {
-        cards.flatMap { card in card.warnings.map { (card.name, $0) } }
+    private var warnings: [DashboardSnapshot.Alert] {
+        cards.flatMap(\.warnings)
     }
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("None")
-                .font(AppFont.poster)
-                .foregroundStyle(Color.card)
-                .tracking(AppTracking.poster)
-                .minimumScaleFactor(0.3)
-                .lineLimit(1)
+            Text("None yet")
+                .font(AppFont.section)
+                .foregroundStyle(Color.ink)
             Text("Ask a patient from Sharing. They approve before you see anything.")
                 .font(AppFont.body)
                 .foregroundStyle(Color.mute)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 24)
+        .padding(.vertical, 20)
     }
 
     private func patientCard(_ card: WatchCard) -> some View {
-        let ink = card.tinted ? Color.ink : Color.ink
-        return VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 10) {
                 Text(card.initials)
-                    .font(.custom("BricolageGrotesque-ExtraBold", size: 13))
+                    .font(.custom("BricolageGrotesque-ExtraBold", size: 12))
                     .foregroundStyle(Color.ink)
-                    .frame(width: 38, height: 38)
-                    .background(card.tinted ? Color.ink.opacity(0.14) : Color.mist)
+                    .frame(width: 36, height: 36)
+                    .background(Color.mist)
                     .clipShape(Circle())
+
                 VStack(alignment: .leading, spacing: 1) {
                     Text(card.name)
                         .font(.custom("BricolageGrotesque-ExtraBold", size: 17))
-                        .foregroundStyle(ink)
-                    Text("Today’s average")
+                        .tracking(-0.3)
+                        .foregroundStyle(Color.ink)
+                    Text("Average this week")
                         .font(AppFont.chip)
-                        .foregroundStyle(ink.opacity(0.6))
+                        .foregroundStyle(Color.mute)
                 }
-                Spacer(minLength: 0)
+                Spacer(minLength: 8)
+
+                if let average = card.average {
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text(String(Int(average.rounded())))
+                            .font(.custom("BricolageGrotesque-ExtraBold", size: 26))
+                            .tracking(-1)
+                            .foregroundStyle(tint(for: average))
+                        Text("mg/dL")
+                            .font(AppFont.chip)
+                            .foregroundStyle(Color.mute)
+                    }
+                }
             }
 
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(card.glucose.map { String(Int($0.rounded())) } ?? "—")
-                    .font(.custom("BricolageGrotesque-ExtraBold", size: 48))
-                    .tracking(-2.6)
-                    .foregroundStyle(card.tinted ? Color.ink : card.tint)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text("mg/dL")
-                    .font(AppFont.chip)
-                    .foregroundStyle(ink.opacity(0.55))
-                Spacer(minLength: 8)
-                statusPill(card, ink: ink)
+            HStack(spacing: 5) {
+                ForEach(card.week.indices, id: \.self) { index in
+                    weekCell(card.week[index])
+                }
+            }
+            .padding(.top, 13)
+
+            HStack(spacing: 16) {
+                stat("In range", card.inRangePercent.map { "\($0)%" } ?? "—", tint: nil)
+                stat("Readings", "\(card.readings)", tint: nil)
+                stat("High days", "\(card.highDays)", tint: card.highDays > 0 ? Color.warn : nil)
+            }
+            .padding(.top, 11)
+            .overlay(alignment: .top) {
+                Rectangle().fill(Color.hairline).frame(height: 1)
+            }
+            .padding(.top, 13)
+
+            HStack(spacing: 0) {
+                mini("Steps", card.stepsToday.map { $0.formatted() } ?? "—", tint: nil)
+                mini("Active", "\(card.activeMinutes)m", tint: nil)
+                mini("Sitting", "\(card.sittingHours)h", tint: card.sittingHours >= 16 ? Color.warn : nil)
             }
             .padding(.top, 12)
+        }
+        .panel()
+    }
 
-            HStack(spacing: 7) {
-                Circle()
-                    .fill(card.tinted ? Color.ink : card.tint)
-                    .frame(width: 7, height: 7)
-                Text(card.detail)
-                    .font(AppFont.chip)
-                    .foregroundStyle(ink.opacity(0.75))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-                Spacer(minLength: 0)
-            }
-            .padding(.top, 6)
-
-            Text("\(card.stepsToday.map { $0.formatted() } ?? "—") steps today")
-                .font(AppFont.chip)
-                .foregroundStyle(ink.opacity(0.65))
-                .padding(.top, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(ink.opacity(0.16))
-                        .frame(height: 1)
+    private func weekCell(_ day: WeekDay) -> some View {
+        VStack(spacing: 4) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(day.fill)
+                    .frame(height: 42)
+                if let value = day.value {
+                    Text(String(Int(value.rounded())))
+                        .font(.custom("BricolageGrotesque-ExtraBold", size: 12))
+                        .foregroundStyle(Color.ink)
                 }
-                .padding(.top, 12)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(card.tinted ? card.tint : Color.card)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(card.tinted ? Color.clear : Color.hairline, lineWidth: 1)
-        )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(card.name), glucose \(card.glucose.map { String(Int($0.rounded())) } ?? "none") milligrams per deciliter, \(card.detail)")
-    }
+            }
+            .frame(height: 42)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(day.isToday ? Color.flare : Color.clear, lineWidth: 2)
+            )
 
-    private func statusPill(_ card: WatchCard, ink: Color) -> some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(card.tinted ? Color.ink : card.tint)
-                .frame(width: 6, height: 6)
-            Text(card.status)
+            Text(day.label)
                 .font(AppFont.chip)
-                .textCase(.uppercase)
-                .tracking(1.1)
-                .foregroundStyle(card.tinted ? Color.ink : card.tint)
+                .foregroundStyle(day.isToday ? Color.flare : Color.mute)
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .background(card.tinted ? Color.ink.opacity(0.16) : card.tint.opacity(0.14))
-        .clipShape(Capsule())
+        .frame(maxWidth: .infinity)
     }
 
-    private func warningRow(_ name: String, _ alert: DashboardSnapshot.Alert) -> some View {
+    private func stat(_ label: String, _ value: String, tint: Color?) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).sectionHeading()
+            Text(value)
+                .font(.custom("BricolageGrotesque-ExtraBold", size: 15))
+                .foregroundStyle(tint ?? Color.ink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func mini(_ label: String, _ value: String, tint: Color?) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(value)
+                .font(.custom("BricolageGrotesque-ExtraBold", size: 17))
+                .tracking(-0.4)
+                .foregroundStyle(tint ?? Color.ink)
+            Text(label)
+                .font(AppFont.chip)
+                .foregroundStyle(Color.mute)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func warningRow(_ alert: DashboardSnapshot.Alert) -> some View {
         let tint = alert.severity == "warning" ? Color.alert : Color.warn
-        return HStack(spacing: 11) {
+        return HStack(alignment: .top, spacing: 10) {
             Image(systemName: "exclamationmark.circle.fill")
-                .font(.system(size: 15, weight: .bold))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.ink)
-                .frame(width: 29, height: 29)
+                .frame(width: 24, height: 24)
                 .background(tint)
-                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-            Text(alert.message.contains(name) ? alert.message : "\(alert.message) · \(name)")
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Text(alert.message)
                 .font(AppFont.chip)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
-        .padding(.vertical, 11)
     }
 
-    private func sectionLabel(_ text: String) -> some View {
-        Text(text)
-            .font(AppFont.chip)
-            .tracking(1.8)
-            .textCase(.uppercase)
-            .foregroundStyle(Color.mute)
-            .padding(.bottom, 8)
+    private func tint(for value: Double) -> Color {
+        if value < 70 { return Color.alert }
+        if value > 180 { return Color.warn }
+        return Color.ink
     }
 
     private func load() async {
@@ -238,7 +237,14 @@ struct CaregiverSummaryView: View {
                 let dashboard = try? await service.dashboard(patientId: patient.id)
                 loaded.append(card(for: patient, dashboard: dashboard))
             }
-            cards = loaded
+
+            // Anyone out of range first: the eye should land there.
+            cards = loaded.sorted { lhs, rhs in
+                let left = (lhs.highDays + lhs.lowDays) > 0 ? 1 : 0
+                let right = (rhs.highDays + rhs.lowDays) > 0 ? 1 : 0
+                if left != right { return left > right }
+                return lhs.name < rhs.name
+            }
         } catch {
             errorText = error.localizedDescription
         }
@@ -246,50 +252,66 @@ struct CaregiverSummaryView: View {
     }
 
     private func card(for patient: User, dashboard: DashboardSnapshot?) -> WatchCard {
-        let glucose = dashboard?.glucoseTrends.last?.averageValue
-        let steps = dashboard?.activityTrends.last?.stepCount
-        let alerts = dashboard?.alerts ?? []
-
-        let status: String
-        let tint: Color
-        let detail: String
-        let tinted: Bool
-
-        switch glucose {
-        case let value? where value < 70:
-            status = "Low"
-            tint = Color.alert
-            detail = "Below 70 · check in"
-            tinted = true
-        case let value? where value > 180:
-            status = "High"
-            tint = Color.warn
-            detail = "Above 180 · worth a look"
-            tinted = true
-        case let value?:
-            status = "In range"
-            tint = Color.acid
-            detail = value >= 70 ? "Steady" : "No readings"
-            tinted = false
-        case nil:
-            status = "No readings"
-            tint = Color.mute
-            detail = "Nothing logged yet"
-            tinted = false
-        }
+        let trends = dashboard?.glucoseTrends ?? []
+        let activity = dashboard?.activityTrends ?? []
+        let values = trends.map(\.averageValue)
+        let todayActivity = activity.last
+        let activeMinutes = todayActivity?.durationMinutes ?? 0
 
         return WatchCard(
             id: patient.id,
             name: patient.displayName,
             initials: initials(patient.displayName),
-            glucose: glucose,
-            status: status,
-            tint: tint,
-            tinted: tinted,
-            detail: detail,
-            stepsToday: steps,
-            warnings: alerts
+            average: values.isEmpty ? nil : values.reduce(0, +) / Double(values.count),
+            week: Self.weekDays(trends: trends),
+            inRangePercent: values.isEmpty
+                ? nil
+                : Int((Double(values.filter { $0 >= 70 && $0 <= 180 }.count) / Double(values.count) * 100).rounded()),
+            readings: trends.reduce(0) { $0 + $1.readingCount },
+            highDays: values.filter { $0 > 180 }.count,
+            lowDays: values.filter { $0 < 70 }.count,
+            stepsToday: todayActivity?.stepCount,
+            activeMinutes: activeMinutes,
+            sittingHours: max(0, (960 - activeMinutes) / 60),
+            warnings: (dashboard?.alerts ?? []).filter { $0.code != "HIGH_SEDENTARY" }
         )
+    }
+
+    /// Seven slots ending today, matched by the server's yyyy-MM-dd keys.
+    private static func weekDays(trends: [DashboardSnapshot.GlucoseTrend]) -> [WeekDay] {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        let today = calendar.startOfDay(for: Date())
+
+        let key = DateFormatter()
+        key.calendar = calendar
+        key.locale = Locale(identifier: "en_US_POSIX")
+        key.timeZone = calendar.timeZone
+        key.dateFormat = "yyyy-MM-dd"
+
+        let glucose = Dictionary(trends.map { ($0.date, $0.averageValue) }, uniquingKeysWith: { _, latest in latest })
+
+        return (0 ..< 7).compactMap { offset -> WeekDay? in
+            guard let date = calendar.date(byAdding: .day, value: offset - 6, to: today) else { return nil }
+            let stamp = key.string(from: date)
+            let value = glucose[stamp]
+
+            let fill: Color
+            switch value {
+            case let v? where v < 70: fill = Color.alert
+            case let v? where v > 180: fill = Color.warn
+            case .some: fill = Color.acid
+            case nil: fill = Color.mist
+            }
+
+            return WeekDay(
+                id: stamp,
+                label: date.formatted(.dateTime.weekday(.narrow)),
+                value: value,
+                fill: fill,
+                isToday: calendar.isDateInToday(date)
+            )
+        }
     }
 
     private func initials(_ name: String) -> String {
@@ -297,15 +319,26 @@ struct CaregiverSummaryView: View {
     }
 }
 
+struct WeekDay: Identifiable {
+    var id: String
+    var label: String
+    var value: Double?
+    var fill: Color
+    var isToday: Bool
+}
+
 struct WatchCard: Identifiable {
     var id: String
     var name: String
     var initials: String
-    var glucose: Double?
-    var status: String
-    var tint: Color
-    var tinted: Bool
-    var detail: String
+    var average: Double?
+    var week: [WeekDay]
+    var inRangePercent: Int?
+    var readings: Int
+    var highDays: Int
+    var lowDays: Int
     var stepsToday: Int?
+    var activeMinutes: Int
+    var sittingHours: Int
     var warnings: [DashboardSnapshot.Alert]
 }
