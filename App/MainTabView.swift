@@ -1267,10 +1267,28 @@ private struct SummaryView: View {
                 errorText = error.localizedDescription
                 Log.health("ingest failed: \(error.localizedDescription)")
             }
-            apiWeek = []
+            await waitForServerGlucose()
             ingestStage = nil
             ingesting = false
         }
+    }
+
+    /// The server fills glucose just after it answers the sync, so the first
+    /// run holds the loading screen until those readings are actually there.
+    /// Without this the chart is one refetch behind on first launch.
+    private func waitForServerGlucose() async {
+        let service = AnalysisService(client: session.client())
+        for _ in 0 ..< 10 {
+            if let snapshot = try? await service.dashboard(),
+               snapshot.glucoseTrends.contains(where: { $0.readingCount > 0 }) {
+                apiWeek = snapshot.week()
+                ingestStage = "Ready"
+                return
+            }
+            ingestStage = "Waiting for the server to finish"
+            try? await Task.sleep(for: .milliseconds(350))
+        }
+        apiWeek = []
     }
 }
 
