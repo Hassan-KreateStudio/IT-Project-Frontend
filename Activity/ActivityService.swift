@@ -45,8 +45,6 @@ struct ActivityService {
     }
 
     private static func encode(_ date: Date) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter.string(from: date)
+        APITime.encode(date)
     }
 }

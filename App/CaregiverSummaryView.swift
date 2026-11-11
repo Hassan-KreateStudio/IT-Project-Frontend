@@ -131,10 +131,18 @@ struct CaregiverSummaryView: View {
             }
             .padding(.top, 13)
 
-            HStack(spacing: 16) {
-                stat("In range", card.inRangePercent.map { "\($0)%" } ?? "—", tint: nil)
-                stat("Readings", "\(card.readings)", tint: nil)
-                stat("High days", "\(card.highDays)", tint: card.highDays > 0 ? Color.warn : nil)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 16) {
+                    stat("In range", card.inRangePercent.map { "\($0)%" } ?? "—", tint: nil)
+                    stat("Readings", "\(card.readings)", tint: nil)
+                    stat("High days", "\(card.highDays)", tint: card.highDays > 0 ? Color.warn : nil)
+                }
+                if card.highDays > 0 {
+                    Text(card.highSentence)
+                        .font(AppFont.chip)
+                        .foregroundStyle(Color.mute)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             .padding(.top, 11)
             .overlay(alignment: .top) {
@@ -209,7 +217,7 @@ struct CaregiverSummaryView: View {
                 .frame(width: 24, height: 24)
                 .background(tint)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            Text(alert.message)
+            Text(AlertCopy.normalized(alert.message))
                 .font(AppFont.chip)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
@@ -254,7 +262,7 @@ struct CaregiverSummaryView: View {
     private func card(for patient: User, dashboard: DashboardSnapshot?) -> WatchCard {
         let trends = dashboard?.glucoseTrends ?? []
         let activity = dashboard?.activityTrends ?? []
-        let values = trends.map(\.averageValue)
+        let counts = GlucoseWindowCounts(averages: trends.map(\.averageValue))
         let todayActivity = activity.last
         let activeMinutes = todayActivity?.durationMinutes ?? 0
 
@@ -262,18 +270,22 @@ struct CaregiverSummaryView: View {
             id: patient.id,
             name: patient.displayName,
             initials: initials(patient.displayName),
-            average: values.isEmpty ? nil : values.reduce(0, +) / Double(values.count),
-            week: Self.weekDays(trends: trends),
-            inRangePercent: values.isEmpty
+            average: counts.daysWithReadings == 0
                 ? nil
-                : Int((Double(values.filter { $0 >= 70 && $0 <= 180 }.count) / Double(values.count) * 100).rounded()),
+                : trends.map(\.averageValue).reduce(0, +) / Double(counts.daysWithReadings),
+            week: Self.weekDays(trends: trends),
+            inRangePercent: counts.inRangePercent,
             readings: trends.reduce(0) { $0 + $1.readingCount },
-            highDays: values.filter { $0 > 180 }.count,
-            lowDays: values.filter { $0 < 70 }.count,
+            highDays: counts.highDays,
+            highSentence: counts.highSentence,
+            lowDays: counts.lowDays,
             stepsToday: todayActivity?.stepCount,
             activeMinutes: activeMinutes,
             sittingHours: max(0, (960 - activeMinutes) / 60),
-            warnings: (dashboard?.alerts ?? []).filter { $0.code != "HIGH_SEDENTARY" }
+            warnings: (dashboard?.alerts ?? []).filter { alert in
+                alert.code != "HIGH_SEDENTARY"
+                    && !AlertCopy.isGlucoseTally(code: alert.code, message: alert.message)
+            }
         )
     }
 
@@ -283,23 +295,17 @@ struct CaregiverSummaryView: View {
         calendar.timeZone = .current
         let today = calendar.startOfDay(for: Date())
 
-        let key = DateFormatter()
-        key.calendar = calendar
-        key.locale = Locale(identifier: "en_US_POSIX")
-        key.timeZone = calendar.timeZone
-        key.dateFormat = "yyyy-MM-dd"
-
         let glucose = Dictionary(trends.map { ($0.date, $0.averageValue) }, uniquingKeysWith: { _, latest in latest })
 
         return (0 ..< 7).compactMap { offset -> WeekDay? in
             guard let date = calendar.date(byAdding: .day, value: offset - 6, to: today) else { return nil }
-            let stamp = key.string(from: date)
+            let stamp = DayClock.dayKey(for: date, calendar: calendar)
             let value = glucose[stamp]
 
             let fill: Color
             switch value {
-            case let v? where v < 70: fill = Color.alert
-            case let v? where v > 180: fill = Color.warn
+            case let v? where v < GlucoseWindowCounts.lowMgDl: fill = Color.alert
+            case let v? where v > GlucoseWindowCounts.highMgDl: fill = Color.warn
             case .some: fill = Color.acid
             case nil: fill = Color.mist
             }
@@ -336,6 +342,7 @@ struct WatchCard: Identifiable {
     var inRangePercent: Int?
     var readings: Int
     var highDays: Int
+    var highSentence: String
     var lowDays: Int
     var stepsToday: Int?
     var activeMinutes: Int

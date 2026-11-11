@@ -144,33 +144,26 @@ struct HistoryDay: Identifiable {
 
     var weekday: String { date.formatted(.dateTime.weekday(.abbreviated)) }
     var dayNumber: String { date.formatted(.dateTime.day()) }
-    var readingLabel: String { readings <= 1 ? "1 reading" : "\(readings) readings" }
+    var readingLabel: String { Plural.readings(readings) }
 
-    static func from(_ snapshot: DashboardSnapshot) -> [HistoryDay] {
-        let stamp = DateFormatter()
-        stamp.locale = Locale(identifier: "en_US_POSIX")
-        stamp.timeZone = Calendar.current.timeZone
-        stamp.dateFormat = "yyyy-MM-dd"
-
-        let glucose = Dictionary(
-            snapshot.glucoseTrends.map { ($0.date, $0) },
-            uniquingKeysWith: { _, latest in latest }
+    static func from(_ snapshot: DashboardSnapshot, timeZone: TimeZone = .current) -> [HistoryDay] {
+        HistoryJoin.rows(
+            glucose: snapshot.glucoseTrends.map {
+                HistoryJoin.Glucose(date: $0.date, average: $0.averageValue, readings: $0.readingCount)
+            },
+            activity: snapshot.activityTrends.map {
+                HistoryJoin.Activity(date: $0.date, steps: $0.stepCount, minutes: $0.durationMinutes)
+            }
         )
-        let activity = Dictionary(
-            snapshot.activityTrends.map { ($0.date, $0) },
-            uniquingKeysWith: { _, latest in latest }
-        )
-
-        let keys = Set(glucose.keys).union(activity.keys)
-        return keys.compactMap { key in
-            guard let date = stamp.date(from: key) else { return nil }
+        .compactMap { row in
+            guard let date = DayClock.parseDayKey(row.stamp, timeZone: timeZone) else { return nil }
             return HistoryDay(
-                stamp: key,
+                stamp: row.stamp,
                 date: date,
-                glucose: glucose[key]?.averageValue,
-                readings: glucose[key]?.readingCount ?? 0,
-                steps: activity[key]?.stepCount ?? 0,
-                activeMinutes: activity[key]?.durationMinutes ?? 0
+                glucose: row.glucose,
+                readings: row.readings,
+                steps: row.steps,
+                activeMinutes: row.activeMinutes
             )
         }
         .sorted { $0.date < $1.date }

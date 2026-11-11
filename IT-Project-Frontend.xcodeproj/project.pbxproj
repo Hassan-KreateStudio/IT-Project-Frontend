@@ -40,6 +40,16 @@
 		A1F0B011C0A14B0E8E2C1B05 /* Outfit-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A05 /* Outfit-Regular.otf */; };
 		A1F0B011C0A14B0E8E2C1B06 /* Outfit-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A06 /* Outfit-Medium.otf */; };
 		A1F0B011C0A14B0E8E2C1B07 /* Outfit-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1F0B011C0A14B0E8E2C1A07 /* Outfit-Bold.otf */; };
+		A1F0DAYC01CLOCK01B01 /* DayClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0DAYC01CLOCK01F01 /* DayClock.swift */; };
+		A1F0APIT01TIME001B01 /* APITime.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0APIT01TIME001F01 /* APITime.swift */; };
+		A1F0GLUC01COUNT01B01 /* GlucoseWindowCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0GLUC01COUNT01F01 /* GlucoseWindowCounts.swift */; };
+		A1F0TIPS01SUMM001B01 /* SummaryTips.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0TIPS01SUMM001F01 /* SummaryTips.swift */; };
+		A1F0HIST01JOIN001B01 /* HistoryJoin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0HIST01JOIN001F01 /* HistoryJoin.swift */; };
+		A1F0TOKN01BOOT001B01 /* TokenBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0TOKN01BOOT001F01 /* TokenBootstrap.swift */; };
+		A1F0DASH01QUERY01B01 /* DashboardQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0DASH01QUERY01F01 /* DashboardQuery.swift */; };
+		A1F0HLTH01COPY001B01 /* HealthAccessCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0HLTH01COPY001F01 /* HealthAccessCopy.swift */; };
+		A1F0KEYC01STORE01B01 /* KeychainTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0KEYC01STORE01F01 /* KeychainTokenStore.swift */; };
+		A1F0TEST01FILE001B01 /* PilotDefectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0TEST01FILE001F01 /* PilotDefectTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,6 +91,17 @@
 		A1F0B011C0A14B0E8E2C1A07 /* Outfit-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "Outfit-Bold.otf"; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1F0B011C0A14B0E8E2C1A09 /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "OFL.txt"; sourceTree = "<group>"; };
+		A1F0DAYC01CLOCK01F01 /* DayClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayClock.swift; sourceTree = "<group>"; };
+		A1F0APIT01TIME001F01 /* APITime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITime.swift; sourceTree = "<group>"; };
+		A1F0GLUC01COUNT01F01 /* GlucoseWindowCounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseWindowCounts.swift; sourceTree = "<group>"; };
+		A1F0TIPS01SUMM001F01 /* SummaryTips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryTips.swift; sourceTree = "<group>"; };
+		A1F0HIST01JOIN001F01 /* HistoryJoin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryJoin.swift; sourceTree = "<group>"; };
+		A1F0TOKN01BOOT001F01 /* TokenBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBootstrap.swift; sourceTree = "<group>"; };
+		A1F0DASH01QUERY01F01 /* DashboardQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardQuery.swift; sourceTree = "<group>"; };
+		A1F0HLTH01COPY001F01 /* HealthAccessCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthAccessCopy.swift; sourceTree = "<group>"; };
+		A1F0KEYC01STORE01F01 /* KeychainTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTokenStore.swift; sourceTree = "<group>"; };
+		A1F0TEST01FILE001F01 /* PilotDefectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PilotDefectTests.swift; sourceTree = "<group>"; };
+		A1F0TEST01PROD001F01 /* ITProjectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ITProjectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -102,6 +123,7 @@
 				42F7D0C86E52464CB4DF4427 /* Assets.xcassets */,
 				A1F0B011C0A14B0E8E2C1A10 /* Info.plist */,
 				C3A1HK01ENTITLEMENTS /* ITProject.entitlements */,
+				A1F0TEST01GRP0001G01 /* ITProjectTests */,
 				3277B018D0704CEEA5D8A36A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -123,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				4F88BF57C4554F6BAC2F95B7 /* ITProject.app */,
+				A1F0TEST01PROD001F01 /* ITProjectTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,6 +184,7 @@
 			children = (
 				3802A28D030949068A973A22 /* AuthService.swift */,
 				77DEF77F62A34AD5A70662A1 /* SessionStore.swift */,
+				A1F0KEYC01STORE01F01 /* KeychainTokenStore.swift */,
 				D7D61D87135346E496A97DBE /* RoleSelectView.swift */,
 				7510AB184EFB4E81937E9BBB /* EmailAuthView.swift */,
 			);
@@ -228,8 +252,24 @@
 				A1F0LOG01SHARED01F01 /* Log.swift */,
 				5400E78ACEF143CC8D5EFD64 /* Theme.swift */,
 				B8A1C011C0A14B0E8E2C1D01 /* BrandMark.swift */,
+				A1F0DAYC01CLOCK01F01 /* DayClock.swift */,
+				A1F0APIT01TIME001F01 /* APITime.swift */,
+				A1F0DASH01QUERY01F01 /* DashboardQuery.swift */,
+				A1F0GLUC01COUNT01F01 /* GlucoseWindowCounts.swift */,
+				A1F0TIPS01SUMM001F01 /* SummaryTips.swift */,
+				A1F0HIST01JOIN001F01 /* HistoryJoin.swift */,
+				A1F0TOKN01BOOT001F01 /* TokenBootstrap.swift */,
+				A1F0HLTH01COPY001F01 /* HealthAccessCopy.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		A1F0TEST01GRP0001G01 /* ITProjectTests */ = {
+			isa = PBXGroup;
+			children = (
+				A1F0TEST01FILE001F01 /* PilotDefectTests.swift */,
+			);
+			path = ITProjectTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -252,6 +292,23 @@
 			productReference = 4F88BF57C4554F6BAC2F95B7 /* ITProject.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A1F0TEST01TARG001T01 /* ITProjectTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1F0TEST01CFG0001L01 /* Build configuration list for PBXNativeTarget "ITProjectTests" */;
+			buildPhases = (
+				A1F0TEST01SRC0001B01 /* Sources */,
+				A1F0TEST01FRM0001B01 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1F0TEST01DEP00001D01 /* PBXTargetDependency */,
+			);
+			name = ITProjectTests;
+			productName = ITProjectTests;
+			productReference = A1F0TEST01PROD001F01 /* ITProjectTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -264,6 +321,10 @@
 				TargetAttributes = {
 					53D8E8F15CD44D3690195002 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					A1F0TEST01TARG001T01 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 53D8E8F15CD44D3690195002;
 					};
 				};
 			};
@@ -281,6 +342,7 @@
 			projectRoot = "";
 			targets = (
 				53D8E8F15CD44D3690195002 /* ITProject */,
+				A1F0TEST01TARG001T01 /* ITProjectTests */,
 			);
 		};
 /* End PBXProject section */
@@ -303,6 +365,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		E58845E3D90D4611A772BE7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F0TEST01FRM0001B01 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -344,10 +413,45 @@
 				92BAFED9CF8C43C79C45C836 /* EmailAuthView.swift in Sources */,
 				8ED833A1F6E4459184D75143 /* HomePlaceholderView.swift in Sources */,
 				C3A1TAB01MAIN01B01 /* MainTabView.swift in Sources */,
+				A1F0DAYC01CLOCK01B01 /* DayClock.swift in Sources */,
+				A1F0APIT01TIME001B01 /* APITime.swift in Sources */,
+				A1F0DASH01QUERY01B01 /* DashboardQuery.swift in Sources */,
+				A1F0GLUC01COUNT01B01 /* GlucoseWindowCounts.swift in Sources */,
+				A1F0TIPS01SUMM001B01 /* SummaryTips.swift in Sources */,
+				A1F0HIST01JOIN001B01 /* HistoryJoin.swift in Sources */,
+				A1F0TOKN01BOOT001B01 /* TokenBootstrap.swift in Sources */,
+				A1F0HLTH01COPY001B01 /* HealthAccessCopy.swift in Sources */,
+				A1F0KEYC01STORE01B01 /* KeychainTokenStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1F0TEST01SRC0001B01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1F0TEST01FILE001B01 /* PilotDefectTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		A1F0TEST01PRXY0001P01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 234599B63BDF422883A2B734 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53D8E8F15CD44D3690195002;
+			remoteInfo = ITProject;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		A1F0TEST01DEP00001D01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53D8E8F15CD44D3690195002 /* ITProject */;
+			targetProxy = A1F0TEST01PRXY0001P01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F1DC511E25234A288AB2799C /* Debug */ = {
@@ -458,6 +562,48 @@
 			};
 			name = Release;
 		};
+		A1F0TEST01DBG0001C01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRYH5A8P5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.HassanKreateStudio.ITProjectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ITProject.app/ITProject";
+			};
+			name = Debug;
+		};
+		A1F0TEST01REL0001C01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BRYH5A8P5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.HassanKreateStudio.ITProjectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ITProject.app/ITProject";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -475,6 +621,15 @@
 			buildConfigurations = (
 				7A2CA7E4B1B64D4CBE93D138 /* Debug */,
 				F1823BDF454241D19335F8C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1F0TEST01CFG0001L01 /* Build configuration list for PBXNativeTarget "ITProjectTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1F0TEST01DBG0001C01 /* Debug */,
+				A1F0TEST01REL0001C01 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

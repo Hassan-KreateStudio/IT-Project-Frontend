@@ -89,24 +89,42 @@ private struct SummaryScreen: View {
 
     @State private var showingHistory = false
 
+    private var glucoseCounts: GlucoseWindowCounts {
+        GlucoseWindowCounts(averages: week.compactMap(\.glucose))
+    }
+
     private var average: Double? {
         let values = week.compactMap(\.glucose)
         guard !values.isEmpty else { return nil }
         return values.reduce(0, +) / Double(values.count)
     }
 
-    private var inRangePercent: Int? {
-        let values = week.compactMap(\.glucose)
-        guard !values.isEmpty else { return nil }
-        let good = values.filter { (70 ... 180).contains($0) }.count
-        return Int((Double(good) / Double(values.count) * 100).rounded())
+    private var inRangePercent: Int? { glucoseCounts.inRangePercent }
+
+    private var tips: [SummaryTip] {
+        let calendar = Calendar.current
+        return SummaryTips.make(
+            days: week.map { point in
+                TipDay(
+                    steps: point.steps,
+                    glucoseMgDl: point.glucose,
+                    readingCount: point.readingCount,
+                    isToday: calendar.isDate(point.date, inSameDayAs: Date())
+                )
+            },
+            todaySteps: today.steps,
+            todayActiveMinutes: today.durationMinutes,
+            latestAt: latest?.recordedAt,
+            now: Date(),
+            calendar: calendar
+        )
     }
 
     private var readingStatus: (String, Color) {
         guard let value = latest?.value else { return ("Not logged", Color.mute) }
         switch value {
-        case ..<70: return ("Low", Color.warn)
-        case 70 ... 180: return ("In range", Color.acid)
+        case ..<GlucoseWindowCounts.lowMgDl: return ("Low", Color.warn)
+        case GlucoseWindowCounts.lowMgDl ... GlucoseWindowCounts.highMgDl: return ("In range", Color.acid)
         default: return ("High", Color.alert)
         }
     }
@@ -284,14 +302,26 @@ private struct SummaryScreen: View {
 
     private var actionsCard: some View {
         VStack(spacing: 0) {
-            actionRow("bolt.fill", Color.flare, "Walk 15 minutes after lunch", "Your only spike this week followed a sit-down meal.", last: false)
-            actionRow("heart.fill", Color.aurora, "Keep logging the evening reading", "Three readings a day is what makes this line trustworthy.", last: false)
-            actionRow("moon.fill", Color.acid, "Log one more reading before bed", "Your line stops at \(latest.map { $0.recordedAt.formatted(date: .omitted, time: .shortened) } ?? "today") — the night is the blind spot.", last: true)
+            if tips.isEmpty {
+                Text("Log a glucose reading to get a suggestion from your numbers.")
+                    .font(AppFont.chip)
+                    .foregroundStyle(Color.mute)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 14)
+            } else {
+                ForEach(Array(tips.enumerated()), id: \.element.id) { index, tip in
+                    actionRow(tip.symbol, tipTint(index), tip.title, tip.detail, last: index == tips.count - 1)
+                }
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 2)
         .background(Color.night)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func tipTint(_ index: Int) -> Color {
+        [Color.flare, Color.aurora, Color.acid][index % 3]
     }
 
     private func actionRow(_ icon: String, _ tint: Color, _ title: String, _ detail: String, last: Bool) -> some View {
@@ -357,14 +387,14 @@ private struct GlucoseWeekChart: View {
             ZStack(alignment: .topLeading) {
                 Rectangle()
                     .fill(Color.acid.opacity(0.07))
-                    .frame(width: width, height: max(0, y(70, height: height) - y(180, height: height)))
-                    .offset(y: y(180, height: height))
+                    .frame(width: width, height: max(0, y(GlucoseWindowCounts.lowMgDl, height: height) - y(GlucoseWindowCounts.highMgDl, height: height)))
+                    .offset(y: y(GlucoseWindowCounts.highMgDl, height: height))
 
                 Path { path in
-                    path.move(to: CGPoint(x: 0, y: y(180, height: height)))
-                    path.addLine(to: CGPoint(x: width, y: y(180, height: height)))
-                    path.move(to: CGPoint(x: 0, y: y(70, height: height)))
-                    path.addLine(to: CGPoint(x: width, y: y(70, height: height)))
+                    path.move(to: CGPoint(x: 0, y: y(GlucoseWindowCounts.highMgDl, height: height)))
+                    path.addLine(to: CGPoint(x: width, y: y(GlucoseWindowCounts.highMgDl, height: height)))
+                    path.move(to: CGPoint(x: 0, y: y(GlucoseWindowCounts.lowMgDl, height: height)))
+                    path.addLine(to: CGPoint(x: width, y: y(GlucoseWindowCounts.lowMgDl, height: height)))
                 }
                 .stroke(Color.acid.opacity(0.25), style: StrokeStyle(lineWidth: 1, dash: [4, 5]))
 
@@ -666,7 +696,7 @@ private struct SummaryView: View {
                     .foregroundStyle(Color.ink)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("IT Project reads your steps, heart rate and exercise minutes from Apple Health, so they can sit next to the glucose you log.")
+                Text(HealthAccessCopy.inApp)
                     .font(AppFont.body)
                     .foregroundStyle(Color.ink.opacity(0.8))
                     .lineSpacing(4)
@@ -896,7 +926,7 @@ private struct SummaryView: View {
                     Text("Health access is off")
                         .font(AppFont.bodyMedium)
                         .foregroundStyle(Color.card)
-                    Text("Tap to allow steps and heart rate")
+                    Text("Tap to allow Health access")
                         .font(AppFont.chip)
                         .foregroundStyle(Color.mute)
                 }

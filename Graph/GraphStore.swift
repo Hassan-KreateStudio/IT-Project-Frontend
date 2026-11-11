@@ -16,6 +16,14 @@ struct WeekPoint: Identifiable, Equatable {
     var date: Date
     var steps: Int
     var glucose: Double?
+    var readingCount: Int
+
+    init(date: Date, steps: Int, glucose: Double?, readingCount: Int = 0) {
+        self.date = date
+        self.steps = steps
+        self.glucose = glucose
+        self.readingCount = readingCount
+    }
 }
 
 struct GlucosePoint: Equatable {
@@ -169,7 +177,8 @@ final class GraphStore: ObservableObject {
             return WeekPoint(
                 date: date,
                 steps: day?.activity?.stepCount ?? 0,
-                glucose: day?.glucose?.value
+                glucose: day?.glucose?.value,
+                readingCount: day?.glucose == nil ? 0 : 1
             )
         }
     }

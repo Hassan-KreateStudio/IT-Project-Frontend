@@ -17,9 +17,7 @@ struct CaregiverRequest: Codable, Identifiable {
     let requestedAt: String
 
     var askedAt: Date? {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter.date(from: requestedAt) ?? ISO8601DateFormatter().date(from: requestedAt)
+        APITime.parse(requestedAt)
     }
 }
 

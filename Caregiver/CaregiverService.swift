@@ -132,10 +132,12 @@ struct CaregiverService {
             let patientDashboard: DashboardSnapshot
         }
 
-        let to = Date()
-        let from = Calendar.current.date(byAdding: .day, value: -(days - 1), to: to) ?? to
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
+        // patientDashboard has no offsetMinutes argument. The window is still the
+        // civil days, but the server buckets those rows in UTC. Activity sent
+        // at local noon stays on the civil day in UTC for zones inside ±12h;
+        // rows synced earlier at local midnight stay on the previous UTC day
+        // until the backend accepts an offset here.
+        let range = DayClock.queryRange(days: days, now: Date(), calendar: .current)
 
         let data: Data = try await client.execute(
             query: """
@@ -150,8 +152,8 @@ struct CaregiverService {
             """,
             variables: [
                 "patientId": patientId,
-                "from": formatter.string(from: from),
-                "to": formatter.string(from: to)
+                "from": APITime.encode(range.from),
+                "to": APITime.encode(range.to)
             ],
             as: Data.self
         )
