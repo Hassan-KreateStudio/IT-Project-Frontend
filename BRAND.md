@@ -137,7 +137,6 @@ SF Symbols, **Regular**, hierarchical, point size **22** in the nav, **24** in t
 | Action | Symbol |
 |---|---|
 | Notifications | `bell` / `bell.fill` |
-| Add glucose | `plus` |
 | Settings | `gearshape` |
 | Home | `house` / `house.fill` |
 | Dashboard | `square.grid.2x2` / `.fill` |
@@ -172,11 +171,10 @@ Tab bar: four items — **Home**, **Dashboard**, **Watch**, **Profile**. Selecte
 | UI | Folder |
 |---|---|
 | Login / register | `Auth/` |
-| Home (latest activity + glucose cards, alerts banner) | `App/` or a `Home/` if it grows; data from Activity + Glucose + Analysis alerts |
+| Home (latest activity + glucose cards, alerts banner) | `App/` or a `Home/` if it grows; data from Activity + Analysis alerts |
 | Dashboard (trends) | `Analysis/` |
 | Watch / last sync | `HealthKit/` + `Activity/` |
 | Profile, caregiver link | `Auth/` + `Caregiver/` |
-| Add reading | `Glucose/` |
 | Theme | `Shared/Theme.swift` + `Assets.xcassets/Colors/` |
 
 ---

@@ -58,22 +58,6 @@ struct MainTabView: View {
                 Log.health("catch-up failed: \(error.localizedDescription)")
             }
             NotificationCenter.default.post(name: .healthSyncFinished, object: nil)
-            await flushGlucose()
-        }
-    }
-
-    private func flushGlucose() async {
-        guard let user = session.user,
-              let pending = graph.pendingGlucose(patientId: user.id)
-        else { return }
-        do {
-            try await GlucoseService(client: session.client()).add(
-                value: pending.value,
-                recordedAt: pending.recordedAt
-            )
-            try graph.markGlucoseSynced(patientId: user.id)
-        } catch {
-            Log.sync("glucose failed: \(error.localizedDescription)")
         }
     }
 }
@@ -82,7 +66,6 @@ struct MainTabView: View {
 private struct SummaryScreen: View {
     var today: TodayMetrics
     var week: [WeekPoint]
-    var latest: GlucosePoint?
     var watch: WatchLink.State
     var client: GraphQLClient
     var onBack: () -> Void
@@ -101,6 +84,11 @@ private struct SummaryScreen: View {
 
     private var inRangePercent: Int? { glucoseCounts.inRangePercent }
 
+    /// Today's figure is the server's daily average, the same series as the chart.
+    private var todayGlucose: Double? {
+        week.first { Calendar.current.isDateInToday($0.date) }?.glucose
+    }
+
     private var tips: [SummaryTip] {
         let calendar = Calendar.current
         return SummaryTips.make(
@@ -108,20 +96,18 @@ private struct SummaryScreen: View {
                 TipDay(
                     steps: point.steps,
                     glucoseMgDl: point.glucose,
-                    readingCount: point.readingCount,
                     isToday: calendar.isDate(point.date, inSameDayAs: Date())
                 )
             },
             todaySteps: today.steps,
             todayActiveMinutes: today.durationMinutes,
-            latestAt: latest?.recordedAt,
             now: Date(),
             calendar: calendar
         )
     }
 
     private var readingStatus: (String, Color) {
-        guard let value = latest?.value else { return ("Not logged", Color.mute) }
+        guard let value = todayGlucose else { return ("No reading", Color.mute) }
         switch value {
         case ..<GlucoseWindowCounts.lowMgDl: return ("Low", Color.warn)
         case GlucoseWindowCounts.lowMgDl ... GlucoseWindowCounts.highMgDl: return ("In range", Color.acid)
@@ -268,8 +254,8 @@ private struct SummaryScreen: View {
             Circle()
                 .fill(readingStatus.1)
                 .frame(width: 9, height: 9)
-            if let latest {
-                Text(format(latest.value))
+            if let todayGlucose {
+                Text(format(todayGlucose))
                     .font(.custom("BricolageGrotesque-ExtraBold", size: 26))
                     .tracking(-1)
                     .foregroundStyle(readingStatus.1)
@@ -280,9 +266,6 @@ private struct SummaryScreen: View {
                     .font(AppFont.chip)
                     .foregroundStyle(Color.mute.opacity(0.9))
                 Spacer()
-                Text(latest.recordedAt.formatted(date: .omitted, time: .shortened))
-                    .font(AppFont.chip)
-                    .foregroundStyle(Color.mute)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(Color.mute)
@@ -303,7 +286,7 @@ private struct SummaryScreen: View {
     private var actionsCard: some View {
         VStack(spacing: 0) {
             if tips.isEmpty {
-                Text("Log a glucose reading to get a suggestion from your numbers.")
+                Text("Nothing to suggest from this week's numbers yet.")
                     .font(AppFont.chip)
                     .foregroundStyle(Color.mute)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -503,18 +486,18 @@ private struct SummaryView: View {
     @State private var dragX: CGFloat = 0
     @State private var dragAxis: Axis?
     @State private var isFlinging = false
-    @State private var glucoseText = ""
-    @State private var savingGlucose = false
     @State private var watch: WatchLink.State = .absent
     @State private var watchDay: TodayMetrics?
     @State private var showingSummary = false
     @State private var apiWeek: [WeekPoint] = []
     @State private var healthAccessOff = false
-    @State private var showingGlucose = false
-    @FocusState private var glucoseFocused: Bool
 
     private var isCaregiver: Bool { session.user?.role == "CAREGIVER" }
-    private var needsGlucose: Bool { !isCaregiver && graph.todayGlucose == nil }
+
+    /// Today's glucose on the cards is the server average, not a number typed on the phone.
+    private var serverTodayGlucose: Double? {
+        apiWeek.first { Calendar.current.isDateInToday($0.date) }?.glucose
+    }
 
     var body: some View {
         Group {
@@ -522,8 +505,6 @@ private struct SummaryView: View {
                 CaregiverSummaryView()
             } else if HealthKitService.isAvailable && !prompted {
                 allowPoster
-            } else if needsGlucose {
-                glucosePoster
             } else if !HealthKitService.isAvailable {
                 messagePoster(
                     fill: Color.ink,
@@ -573,12 +554,8 @@ private struct SummaryView: View {
             refreshDay()
         }
         .onReceive(NotificationCenter.default.publisher(for: .healthSyncFinished)) { _ in
-            apiWeek = []
-            guard showingSummary else { return }
+            guard !isCaregiver else { return }
             Task { await loadSummaryWeek() }
-        }
-        .sheet(isPresented: $showingGlucose) {
-            glucosePoster
         }
     }
 
@@ -588,7 +565,6 @@ private struct SummaryView: View {
         return SummaryScreen(
             today: today,
             week: apiWeek.isEmpty ? fallback : apiWeek,
-            latest: graph.latestReading(patientId: patientId),
             watch: watch,
             client: session.client(),
             onBack: {
@@ -600,11 +576,11 @@ private struct SummaryView: View {
         )
     }
 
-    /// Watch numbers for the cards, with glucose always taken from the local
-    /// store so a reading saved a second ago is already on the card.
+    /// Watch numbers when a watch is paired, otherwise the phone's activity.
+    /// Glucose is the server average for today, so the card matches the chart.
     private var shownToday: TodayMetrics? {
-        guard var day = watchDay else { return graph.today }
-        day.glucose = graph.todayGlucose
+        guard var day = watchDay ?? graph.today else { return nil }
+        day.glucose = serverTodayGlucose
         return day
     }
 
@@ -614,7 +590,7 @@ private struct SummaryView: View {
             graph.refreshToday(patientId: id)
         }
         Task {
-            if showingSummary { await loadSummaryWeek() }
+            if !isCaregiver { await loadSummaryWeek() }
             watch = await WatchLink.current()
             if watch == .absent {
                 watchDay = nil
@@ -625,7 +601,7 @@ private struct SummaryView: View {
                     durationMinutes: day.durationMinutes,
                     intensity: day.intensity,
                     sedentaryMinutes: day.sedentaryMinutes,
-                    glucose: graph.todayGlucose
+                    glucose: nil
                 )
             } else {
                 watchDay = nil
@@ -636,8 +612,9 @@ private struct SummaryView: View {
     }
 
     /// The summary's seven-day series comes from the server so two devices on
-    /// the same account agree. Local data is only a fallback.
+    /// the same account agree. Local activity is only a fallback, and it has no glucose.
     private func loadSummaryWeek() async {
+        guard !isCaregiver else { return }
         if let snapshot = try? await AnalysisService(client: session.client()).dashboard() {
             apiWeek = snapshot.week()
         }
@@ -738,96 +715,6 @@ private struct SummaryView: View {
         }
     }
 
-    private var glucosePoster: some View {
-        DippedStage(fill: Color.ink, scheme: .dark) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(weekday)
-                    .font(AppFont.bodyMedium)
-                    .foregroundStyle(Color.card)
-                Spacer()
-                TextField("", text: $glucoseText, prompt: Text("0").foregroundStyle(Color.dusk))
-                    .font(AppFont.poster)
-                    .foregroundStyle(Color.flare)
-                    .tracking(AppTracking.poster)
-                    .multilineTextAlignment(.center)
-                    .keyboardType(.numberPad)
-                    .focused($glucoseFocused)
-                    .onChange(of: glucoseText) { old, new in
-                        let digits = new.filter(\.isNumber)
-                        // Drop the keystroke that leaves the 40–400 window; >3 digits can't be valid.
-                        glucoseText = digits.count > 3 || (Int(digits) ?? 0) > Int(GlucoseRange.maxMgDl) ? old : digits
-                    }
-                    .minimumScaleFactor(0.25)
-                    .frame(maxWidth: .infinity)
-                Text("mg/dL")
-                    .font(AppFont.unit)
-                    .foregroundStyle(Color.card)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 4)
-                Spacer()
-                Text("Insert today’s glucose.")
-                    .font(AppFont.body)
-                    .foregroundStyle(Color.card)
-                    .padding(.bottom, 16)
-                if let errorText {
-                    Text(errorText)
-                        .font(AppFont.captionMedium)
-                        .foregroundStyle(Color.alert)
-                        .padding(.bottom, 8)
-                }
-                Button(action: saveGlucose) {
-                    Text(savingGlucose ? "Working…" : "Save")
-                        .font(AppFont.button)
-                        .foregroundStyle(Color.ink)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.flare)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-                .disabled(savingGlucose || glucoseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        }
-        .onAppear {
-            UITextField.appearance().textColor = UIColor(Color.flare)
-            glucoseFocused = true
-        }
-        .onDisappear {
-            UITextField.appearance().textColor = UIColor(Color.ink)
-        }
-    }
-
-    private func saveGlucose() {
-        guard let user = session.user else { return }
-        errorText = nil
-        let raw = glucoseText.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ".")
-        guard let value = Double(raw), (GlucoseRange.minMgDl ... GlucoseRange.maxMgDl).contains(value) else {
-            errorText = "Enter a mg/dL reading between 40 and 400."
-            return
-        }
-        savingGlucose = true
-        let now = Date()
-        Task {
-            defer { savingGlucose = false }
-            do {
-                try graph.saveGlucose(
-                    patientId: user.id,
-                    displayName: user.displayName,
-                    value: value,
-                    recordedAt: now
-                )
-                showingGlucose = false
-                do {
-                    try await GlucoseService(client: session.client()).add(value: value, recordedAt: now)
-                    try graph.markGlucoseSynced(patientId: user.id)
-                } catch {
-                    Log.sync("glucose failed: \(error.localizedDescription)")
-                }
-            } catch {
-                errorText = error.localizedDescription
-            }
-        }
-    }
-
     private func metricsDeck(_ today: TodayMetrics) -> some View {
         let current = page(for: today, hero: hero)
         let next = page(for: today, hero: neighbor(1))
@@ -881,20 +768,6 @@ private struct SummaryView: View {
                         .foregroundStyle(Color.mute)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 8)
-
-                    Button {
-                        glucoseText = ""
-                        showingGlucose = true
-                    } label: {
-                        Text("Add glucose")
-                            .font(AppFont.button)
-                            .foregroundStyle(Color.ink)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
-                            .background(Color.card)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    }
-                    .padding(.top, 14)
                 }
             }
             .accessibilityElement(children: .contain)

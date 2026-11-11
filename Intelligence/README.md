@@ -6,13 +6,13 @@ Requires **iOS 26**, Apple Intelligence capable device, `SystemLanguageModel.def
 
 ## Pipeline
 
-1. SwiftData graph is already written (`Person → Day → Activity`, `Day → Glucose`).
-2. Walk this week into **raw JSON** (dates, steps, duration, intensity, sedentary, glucose mg/dL + time). No averages, no “this is high.”
+1. SwiftData graph is already written (`Person → Day → Activity`). Glucose is not stored on the phone; the dashboard returns it.
+2. Walk this week into **raw JSON** (dates, steps, duration, intensity, sedentary). No averages, no “this is high.”
 3. `LanguageModelSession` (`import FoundationModels`) gets that JSON plus instructions: only use the graph, no diagnosis, Graph Health voice.
 4. Constrained decode into `WeekTake` (`@Generable`). Screens read `WeekTake` only.
 5. Persist `WeekTake` on today’s `Day`. Do not call the model again on every swipe.
 
-Run **once** after that day’s local graph has activity **and** glucose. Run again only if today’s activity row actually changed.
+Run **once** after that day’s activity is in the local graph. Run again only if today’s activity row actually changed.
 
 ## What the model returns
 

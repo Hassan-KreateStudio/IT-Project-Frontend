@@ -19,7 +19,6 @@
 		A1F0CAREG01SUMM01B01 /* CaregiverSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0CAREG01SUMM01F01 /* CaregiverSummaryView.swift */; };
 		A1F0HIST01VIEW01B01 /* GlucoseHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0HIST01VIEW01F01 /* GlucoseHistoryView.swift */; };
 		A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F0PROF01SERV01F01 /* ProfileService.swift */; };
-		7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162AC86725A34C50A3F88B4A /* GlucoseService.swift */; };
 		74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9675C44D70254391BA0D3D80 /* AnalysisService.swift */; };
 		E836F6B174024EFFA414FDDD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE49974B11634931A701A248 /* Models.swift */; };
 		98372BA566DC41B695FCB623 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 42F7D0C86E52464CB4DF4427 /* Assets.xcassets */; };
@@ -67,7 +66,6 @@
 		A1F0CAREG01SUMM01F01 /* CaregiverSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaregiverSummaryView.swift; sourceTree = "<group>"; };
 		A1F0HIST01VIEW01F01 /* GlucoseHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseHistoryView.swift; sourceTree = "<group>"; };
 		A1F0PROF01SERV01F01 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
-		162AC86725A34C50A3F88B4A /* GlucoseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseService.swift; sourceTree = "<group>"; };
 		9675C44D70254391BA0D3D80 /* AnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisService.swift; sourceTree = "<group>"; };
 		CE49974B11634931A701A248 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		42F7D0C86E52464CB4DF4427 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -116,7 +114,6 @@
 				AF8AA1E4D4EA492DB3B9971C /* Activity */,
 				A1F0GRAPH01GROUP01G01 /* Graph */,
 				EF480E0449E349769DF5B9B1 /* HealthKit */,
-				C49CBEA63E9C4B6193BE1B93 /* Glucose */,
 				6C5AE88B9E754F56AF582FD5 /* Analysis */,
 				159B6E7AE9FC46E7916D80F3 /* Shared */,
 				A1F0B011C0A14B0E8E2C1A01 /* Fonts */,
@@ -227,14 +224,6 @@
 				A1F0WATCH01LINK01F01 /* WatchLink.swift */,
 			);
 			path = HealthKit;
-			sourceTree = "<group>";
-		};
-		C49CBEA63E9C4B6193BE1B93 /* Glucose */ = {
-			isa = PBXGroup;
-			children = (
-				162AC86725A34C50A3F88B4A /* GlucoseService.swift */,
-			);
-			path = Glucose;
 			sourceTree = "<group>";
 		};
 		6C5AE88B9E754F56AF582FD5 /* Analysis */ = {
@@ -398,7 +387,6 @@
 				A1F0CAREG01SUMM01B01 /* CaregiverSummaryView.swift in Sources */,
 				A1F0HIST01VIEW01B01 /* GlucoseHistoryView.swift in Sources */,
 				A1F0PROF01SERV01B01 /* ProfileService.swift in Sources */,
-				7BAD37D1055E4FC99F92DB0F /* GlucoseService.swift in Sources */,
 				74468CE418074358ABF5F8A8 /* AnalysisService.swift in Sources */,
 				E836F6B174024EFFA414FDDD /* Models.swift in Sources */,
 				A1F0LOG01SHARED01B01 /* Log.swift in Sources */,

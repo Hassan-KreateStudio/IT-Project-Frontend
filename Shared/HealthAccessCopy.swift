@@ -15,7 +15,7 @@ enum HealthAccessCopy {
     ]
 
     static var inApp: String {
-        "IT Project reads your \(list) from Apple Health, so they can sit next to the glucose you log."
+        "IT Project reads your \(list) from Apple Health, so they can sit next to your glucose."
     }
 
     static var systemSheet: String {

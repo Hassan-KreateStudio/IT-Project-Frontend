@@ -55,7 +55,7 @@ struct GraphQLError: Decodable, LocalizedError {
         case "not_found": return "No patient account with that email yet. They sign in as patient first — then add them again."
         case "forbidden": return "You can’t do that with this account."
         case "invalid_profile": return "Those Health details look off. Check date of birth, height, and weight in Apple Health."
-        case "invalid_glucose": return "Enter a mg/dL reading between 40 and 400."
+        case "invalid_glucose": return "That glucose value isn’t in range."
         default: return message
         }
     }
