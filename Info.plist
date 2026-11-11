@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Graph Health reads steps, heart rate, movement, date of birth, height, and weight from Apple Health.</string>
+	<string>IT Project reads steps, heart rate, exercise minutes, date of birth, height, and weight from Apple Health.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Graph Health does not write samples to Apple Health. iOS still requires this for Health access.</string>
+	<string>IT Project does not write samples to Apple Health. iOS still requires this for Health access.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>BricolageGrotesque-ExtraBold.otf</string>

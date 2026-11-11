@@ -12,13 +12,7 @@ struct HealthDay: Sendable {
     let sedentaryMinutes: Int
 
     static func sourceId(for date: Date, calendar: Calendar = .current) -> String {
-        let start = calendar.startOfDay(for: date)
-        let formatter = DateFormatter()
-        formatter.calendar = calendar
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = calendar.timeZone
-        formatter.dateFormat = "yyyy-MM-dd"
-        return "hk:\(formatter.string(from: start))"
+        "hk:\(DayClock.dayKey(for: date, calendar: calendar))"
     }
 }
 
@@ -111,7 +105,7 @@ struct HealthKitService {
             return HealthDay(
                 start: day,
                 sourceId: HealthDay.sourceId(for: day, calendar: calendar),
-                recordedAt: day,
+                recordedAt: DayClock.activityInstant(on: day, calendar: calendar),
                 stepCount: stepCount,
                 heartRate: heartRate,
                 durationMinutes: durationMinutes,
@@ -144,7 +138,7 @@ struct HealthKitService {
         return HealthDay(
             start: start,
             sourceId: HealthDay.sourceId(for: start, calendar: calendar),
-            recordedAt: start,
+            recordedAt: DayClock.activityInstant(on: start, calendar: calendar),
             stepCount: stepCount,
             heartRate: heartRate,
             durationMinutes: durationMinutes,
@@ -277,9 +271,8 @@ struct HealthKitService {
         if let exercise = HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) {
             types.insert(exercise)
         }
-        if let stand = HKQuantityType.quantityType(forIdentifier: .appleStandTime) {
-            types.insert(stand)
-        }
+        // Stand minutes are not read. Sedentary time is waking minutes minus
+        // exercise, so the permission sheet does not ask for them.
         return types
     }
 

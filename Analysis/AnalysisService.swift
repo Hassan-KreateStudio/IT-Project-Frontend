@@ -8,24 +8,16 @@ import Foundation
 struct AnalysisService {
     var client: GraphQLClient
 
-    func dashboard(days: Int = 7) async throws -> DashboardSnapshot {
+    func dashboard(days: Int = 7, now: Date = Date(), calendar: Calendar = .current) async throws -> DashboardSnapshot {
         struct Data: Decodable {
             let dashboard: DashboardSnapshot
         }
 
-        let to = Date()
-        let from = Calendar.current.date(byAdding: .day, value: -(days - 1), to: to) ?? to
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-
-        // The server buckets by the reader's clock, not UTC, so a 23:30 reading
-        // shows on the day you call today.
-        let offsetMinutes = TimeZone.current.secondsFromGMT() / 60
-
+        let query = DashboardQuery.patient(days: days, now: now, calendar: calendar)
         let data: Data = try await client.execute(
             query: """
-            query($from: Time, $to: Time, $offset: Int) {
-              dashboard(from: $from, to: $to, offsetMinutes: $offset) {
+            query($from: Time, $to: Time, $offsetMinutes: Int) {
+              dashboard(from: $from, to: $to, offsetMinutes: $offsetMinutes) {
                 summary { totalSteps averageGlucose glucoseReadingCount totalActiveMinutes }
                 glucoseTrends { date averageValue readingCount }
                 activityTrends { date stepCount durationMinutes }
@@ -33,7 +25,11 @@ struct AnalysisService {
               }
             }
             """,
-            variables: ["from": formatter.string(from: from), "to": formatter.string(from: to)],
+            variables: [
+                "from": query.from,
+                "to": query.to,
+                "offsetMinutes": query.offsetMinutes
+            ],
             as: Data.self
         )
         return data.dashboard
@@ -55,19 +51,19 @@ extension DashboardSnapshot {
             activityTrends.map { ($0.date, $0.stepCount) },
             uniquingKeysWith: { _, latest in latest }
         )
-        let key = DateFormatter()
-        key.calendar = calendar
-        key.locale = Locale(identifier: "en_US_POSIX")
-        key.timeZone = calendar.timeZone
-        key.dateFormat = "yyyy-MM-dd"
+        let readingsByDate = Dictionary(
+            glucoseTrends.map { ($0.date, $0.readingCount) },
+            uniquingKeysWith: { _, latest in latest }
+        )
 
         return (0 ..< days).compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
-            let stamp = key.string(from: date)
+            let stamp = DayClock.dayKey(for: date, calendar: calendar)
             return WeekPoint(
                 date: date,
                 steps: stepsByDate[stamp] ?? 0,
-                glucose: glucoseByDate[stamp]
+                glucose: glucoseByDate[stamp],
+                readingCount: readingsByDate[stamp] ?? 0
             )
         }
     }
