@@ -64,6 +64,8 @@ final class DayActivity {
     }
 }
 
+/// Kept so an existing on-device store still opens. Nothing writes a reading,
+/// and the screens read glucose from the server dashboard instead.
 @Model
 final class DayGlucose {
     var value: Double

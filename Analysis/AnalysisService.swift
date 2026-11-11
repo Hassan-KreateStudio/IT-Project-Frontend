@@ -51,19 +51,13 @@ extension DashboardSnapshot {
             activityTrends.map { ($0.date, $0.stepCount) },
             uniquingKeysWith: { _, latest in latest }
         )
-        let readingsByDate = Dictionary(
-            glucoseTrends.map { ($0.date, $0.readingCount) },
-            uniquingKeysWith: { _, latest in latest }
-        )
-
         return (0 ..< days).compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: offset, to: start) else { return nil }
             let stamp = DayClock.dayKey(for: date, calendar: calendar)
             return WeekPoint(
                 date: date,
                 steps: stepsByDate[stamp] ?? 0,
-                glucose: glucoseByDate[stamp],
-                readingCount: readingsByDate[stamp] ?? 0
+                glucose: glucoseByDate[stamp]
             )
         }
     }

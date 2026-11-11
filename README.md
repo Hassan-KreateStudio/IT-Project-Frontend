@@ -17,8 +17,7 @@ iPhone SwiftUI app for the IT Project backend. The Apple Watch writes HealthKit 
 - `Graph/` — local SwiftData week (`Person` → `Day` → `Activity`)
 - `Intelligence/` — on-device model on the local week graph
 - `HealthKit/` — phone samples → `sourceId` payloads
-- `Glucose/` — `addGlucose`
-- `Analysis/` — dashboard
+- `Analysis/` — dashboard, including glucose the server fills in
 - `Shared/` — API shapes (`User`, dashboard types)
 
 Open `IT-Project-Frontend.xcodeproj` in Xcode. iPhone only.

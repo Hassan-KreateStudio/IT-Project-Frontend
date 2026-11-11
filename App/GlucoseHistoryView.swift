@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Past days, newest first, straight from the server dashboard. Averages, not
-/// individual readings — the phone only ever keeps one reading per day.
+/// Past days, newest first, straight from the server dashboard. Daily averages,
+/// not individual readings.
 struct GlucoseHistoryView: View {
     var client: GraphQLClient
 
@@ -51,7 +51,7 @@ struct GlucoseHistoryView: View {
                             .foregroundStyle(Color.mute)
                             .padding(.vertical, 30)
                     } else if days.isEmpty {
-                        Text("Nothing logged yet.")
+                        Text("No readings yet.")
                             .font(AppFont.body)
                             .foregroundStyle(Color.mute)
                             .padding(.vertical, 30)

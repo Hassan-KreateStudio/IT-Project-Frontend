@@ -3,7 +3,6 @@ import Foundation
 struct TipDay: Equatable {
     var steps: Int
     var glucoseMgDl: Double?
-    var readingCount: Int
     var isToday: Bool
 }
 
@@ -17,7 +16,8 @@ struct SummaryTip: Equatable, Identifiable {
 /// "What to try next", from the week actually loaded.
 ///
 /// Meals are never recorded, so a tip cannot mention a meal, lunch, or a
-/// sit-down cause. Each line cites a count the app has: high days, readings, or steps.
+/// sit-down cause. Glucose is filled in by the server, so a tip never asks
+/// the user to type a reading. Each line cites a count the app has: high days or steps.
 enum SummaryTips {
     static let quietStepCount = 2_000
     static let afternoonHour = 11
@@ -26,39 +26,12 @@ enum SummaryTips {
         days: [TipDay],
         todaySteps: Int,
         todayActiveMinutes: Int,
-        latestAt: Date?,
         now: Date,
         calendar: Calendar
     ) -> [SummaryTip] {
         var tips: [SummaryTip] = []
         let counts = GlucoseWindowCounts(averages: days.compactMap(\.glucoseMgDl))
-        let today = days.last { $0.isToday }
-        let serverReadings = today?.readingCount ?? 0
-        let todayReadings = max(serverReadings, latestAt == nil ? 0 : 1)
         let hour = calendar.component(.hour, from: now)
-
-        if todayReadings == 0 {
-            tips.append(SummaryTip(
-                symbol: "drop.fill",
-                title: "Log today's glucose",
-                detail: "Nothing is logged for today yet."
-            ))
-        } else if todayReadings == 1 {
-            let when = latestAt.map { " at \(APITime.clock($0, timeZone: calendar.timeZone))" } ?? ""
-            if hour >= 17 {
-                tips.append(SummaryTip(
-                    symbol: "moon.fill",
-                    title: "Add an evening reading",
-                    detail: "Today has \(Plural.readings(todayReadings))\(when)."
-                ))
-            } else {
-                tips.append(SummaryTip(
-                    symbol: "heart.fill",
-                    title: "Log another reading later",
-                    detail: "Today has \(Plural.readings(todayReadings))\(when). That one number is the whole day so far."
-                ))
-            }
-        }
 
         if counts.highDays > 0, let highest = days.compactMap(\.glucoseMgDl).max() {
             tips.append(SummaryTip(

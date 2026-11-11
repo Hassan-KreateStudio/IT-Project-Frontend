@@ -16,31 +16,12 @@ struct WeekPoint: Identifiable, Equatable {
     var date: Date
     var steps: Int
     var glucose: Double?
-    var readingCount: Int
-
-    init(date: Date, steps: Int, glucose: Double?, readingCount: Int = 0) {
-        self.date = date
-        self.steps = steps
-        self.glucose = glucose
-        self.readingCount = readingCount
-    }
-}
-
-struct GlucosePoint: Equatable {
-    var value: Double
-    var recordedAt: Date
-}
-
-struct PendingGlucose: Equatable {
-    var value: Double
-    var recordedAt: Date
 }
 
 @MainActor
 final class GraphStore: ObservableObject {
     let container: ModelContainer
     @Published private(set) var today: TodayMetrics?
-    @Published private(set) var todayGlucose: Double?
     @Published var catchingUp = false
 
     private var context: ModelContext { container.mainContext }
@@ -105,41 +86,9 @@ final class GraphStore: ObservableObject {
         try context.save()
     }
 
-    func saveGlucose(patientId: String, displayName: String, value: Double, recordedAt: Date = Date()) throws {
-        let person = try person(patientId: patientId, displayName: displayName)
-        let sourceId = HealthDay.sourceId(for: recordedAt)
-        let key = Self.dayKey(patientId: patientId, sourceId: sourceId)
-        let day = try day(key: key, date: Calendar.current.startOfDay(for: recordedAt), person: person)
-        if let existing = day.glucose {
-            existing.value = value
-            existing.recordedAt = recordedAt
-            existing.synced = false
-        } else {
-            let reading = DayGlucose(value: value, recordedAt: recordedAt)
-            reading.day = day
-            day.glucose = reading
-            context.insert(reading)
-        }
-        try context.save()
-        Log.graph("glucose \(sourceId) \(value) mg/dL")
-        refreshToday(patientId: patientId)
-    }
-
-    func pendingGlucose(patientId: String) -> PendingGlucose? {
-        guard let reading = todayDay(patientId: patientId)?.glucose, !reading.synced else { return nil }
-        return PendingGlucose(value: reading.value, recordedAt: reading.recordedAt)
-    }
-
-    func markGlucoseSynced(patientId: String) throws {
-        guard let reading = todayDay(patientId: patientId)?.glucose else { return }
-        reading.synced = true
-        try context.save()
-    }
-
     func refreshToday(patientId: String) {
         let todayId = HealthDay.sourceId(for: Date())
         let day = todayDay(patientId: patientId)
-        todayGlucose = day?.glucose?.value
         if let activity = day?.activity {
             today = TodayMetrics(
                 steps: activity.stepCount,
@@ -147,12 +96,12 @@ final class GraphStore: ObservableObject {
                 durationMinutes: activity.durationMinutes,
                 intensity: activity.intensity,
                 sedentaryMinutes: activity.sedentaryMinutes,
-                glucose: todayGlucose
+                glucose: nil
             )
-            Log.graph("today \(todayId) steps=\(activity.stepCount) hr=\(activity.heartRate.map(String.init) ?? "—") duration=\(activity.durationMinutes) intensity=\(activity.intensity) sedentary=\(activity.sedentaryMinutes) glucose=\(todayGlucose.map { String($0) } ?? "—")")
+            Log.graph("today \(todayId) steps=\(activity.stepCount) hr=\(activity.heartRate.map(String.init) ?? "—") duration=\(activity.durationMinutes) intensity=\(activity.intensity) sedentary=\(activity.sedentaryMinutes)")
         } else {
             today = nil
-            Log.graph("no today activity yet glucose=\(todayGlucose.map { String($0) } ?? "—")")
+            Log.graph("no today activity yet")
         }
     }
 
@@ -177,15 +126,9 @@ final class GraphStore: ObservableObject {
             return WeekPoint(
                 date: date,
                 steps: day?.activity?.stepCount ?? 0,
-                glucose: day?.glucose?.value,
-                readingCount: day?.glucose == nil ? 0 : 1
+                glucose: nil
             )
         }
-    }
-
-    func latestReading(patientId: String) -> GlucosePoint? {
-        guard let reading = todayDay(patientId: patientId)?.glucose else { return nil }
-        return GlucosePoint(value: reading.value, recordedAt: reading.recordedAt)
     }
 
     private func todayDay(patientId: String) -> Day? {

@@ -183,17 +183,14 @@ final class PilotDefectTests: XCTestCase {
             TipDay(
                 steps: index == 6 ? 23 : 8_083,
                 glucoseMgDl: index == 4 ? 208 : 120,
-                readingCount: index == 6 ? 1 : 3,
                 isToday: index == 6
             )
         }
-        let latest = date(2026, 11, 11, 16, 30, zone: nairobi)
         let now = date(2026, 11, 11, 18, 0, zone: nairobi)
         let tips = SummaryTips.make(
             days: days,
             todaySteps: 23,
             todayActiveMinutes: 0,
-            latestAt: latest,
             now: now,
             calendar: calendar(in: nairobi)
         )
@@ -203,39 +200,33 @@ final class PilotDefectTests: XCTestCase {
         XCTAssertFalse(text.contains("sit-down"))
         XCTAssertFalse(text.contains("three readings"))
         XCTAssertFalse(text.contains("day day"))
+        XCTAssertFalse(text.contains("log "))
+        XCTAssertFalse(tips.contains { $0.title == "Add an evening reading" })
 
         let high = tips.first { $0.title.contains("above 180") }
         XCTAssertEqual(high?.title, "1 day averaged above 180")
         XCTAssertTrue(high?.detail.contains("1 of 7 days averaged above 180") == true)
         XCTAssertTrue(high?.detail.contains("208") == true)
 
-        let evening = tips.first { $0.title == "Add an evening reading" }
-        XCTAssertTrue(evening?.detail.contains("1 reading") == true)
-        XCTAssertFalse(evening?.detail.contains("readings") == true)
-        XCTAssertTrue(evening?.detail.contains("16:30") == true)
-
         XCTAssertTrue(tips.contains { $0.title == "Walk 15 minutes" && $0.detail.contains("23") })
     }
 
-    func testSingleReadingIsSingularAndAFullDayDoesNotAskForAnother() {
+    func testSingleReadingDoesNotAskForAnother() {
         let thin = SummaryTips.make(
-            days: [TipDay(steps: 6_000, glucoseMgDl: 110, readingCount: 1, isToday: true)],
+            days: [TipDay(steps: 6_000, glucoseMgDl: 110, isToday: true)],
             todaySteps: 6_000,
             todayActiveMinutes: 20,
-            latestAt: date(2026, 11, 11, 9, 15, zone: nairobi),
             now: date(2026, 11, 11, 10, 0, zone: nairobi),
             calendar: calendar(in: nairobi)
         )
-        XCTAssertEqual(thin.first?.title, "Log another reading later")
-        XCTAssertTrue(thin.first?.detail.contains("1 reading") == true)
-        XCTAssertFalse(thin.first?.detail.contains("readings") == true)
+        XCTAssertEqual(thin.first?.title, "Inside range this week")
+        XCTAssertFalse(thin.contains { $0.title.localizedCaseInsensitiveContains("log") })
         XCTAssertFalse(thin.contains { $0.title == "Walk 15 minutes" })
 
         let steady = SummaryTips.make(
-            days: [TipDay(steps: 8_000, glucoseMgDl: 110, readingCount: 3, isToday: true)],
+            days: [TipDay(steps: 8_000, glucoseMgDl: 110, isToday: true)],
             todaySteps: 8_000,
             todayActiveMinutes: 30,
-            latestAt: date(2026, 11, 11, 19, 0, zone: nairobi),
             now: date(2026, 11, 11, 19, 5, zone: nairobi),
             calendar: calendar(in: nairobi)
         )
@@ -245,16 +236,15 @@ final class PilotDefectTests: XCTestCase {
         XCTAssertFalse(steadyText.lowercased().contains("meal"))
     }
 
-    func testEmptyTodayAsksForAReading() {
+    func testEmptyTodayDoesNotAskForAReading() {
         let tips = SummaryTips.make(
-            days: [TipDay(steps: 0, glucoseMgDl: nil, readingCount: 0, isToday: true)],
+            days: [TipDay(steps: 0, glucoseMgDl: nil, isToday: true)],
             todaySteps: 0,
             todayActiveMinutes: 0,
-            latestAt: nil,
             now: date(2026, 11, 11, 8, 0, zone: nairobi),
             calendar: calendar(in: nairobi)
         )
-        XCTAssertEqual(tips.map(\.title), ["Log today's glucose"])
+        XCTAssertTrue(tips.isEmpty)
     }
 
     // MARK: D6 permission copy
